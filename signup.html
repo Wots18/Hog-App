@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Account — HOG</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8C97A;
+    --gold-dim: #8A6F35;
+    --black: #0A0A0A;
+    --dark: #111111;
+    --dark-2: #1A1A1A;
+    --dark-3: #222222;
+    --white: #F5F0E8;
+    --gray: #888880;
+    --green: #4CAF83;
+    --red: #E05C5C;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    display: flex;
+    cursor: none;
+  }
+
+  /* CURSOR */
+  .cursor { width: 10px; height: 10px; background: var(--gold); border-radius: 50%; position: fixed; pointer-events: none; z-index: 99999; transform: translate(-50%,-50%); transition: transform 0.15s; }
+  .cursor-ring { width: 36px; height: 36px; border: 1px solid rgba(201,168,76,0.35); border-radius: 50%; position: fixed; pointer-events: none; z-index: 99998; transform: translate(-50%,-50%); transition: all 0.1s ease; }
+
+  /* LEFT PANEL */
+  .left-panel {
+    width: 42%;
+    background: var(--dark);
+    border-right: 1px solid rgba(201,168,76,0.1);
+    display: flex;
+    flex-direction: column;
+    padding: 48px 52px;
+    position: relative;
+    overflow: hidden;
+    min-height: 100vh;
+  }
+  .left-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 20% 80%, rgba(201,168,76,0.07) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(201,168,76,0.04) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  .left-panel::after {
+    content: 'HOG';
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 220px;
+    font-weight: 700;
+    color: rgba(201,168,76,0.03);
+    position: absolute;
+    bottom: -40px;
+    left: -20px;
+    letter-spacing: 10px;
+    pointer-events: none;
+  }
+
+  .panel-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 6px;
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: auto;
+  }
+
+  .panel-visual {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ILLUSTRATED BANK SVG */
+  .bank-illustration { width: 100%; max-width: 360px; }
+
+  .panel-tagline {
+    position: relative;
+    z-index: 1;
+    margin-top: auto;
+  }
+  .panel-tagline h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    font-weight: 600;
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+  .panel-tagline h2 span { color: var(--gold); }
+  .panel-tagline p { font-size: 14px; color: var(--gray); line-height: 1.7; max-width: 320px; }
+
+  .trust-badges {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+  }
+  .trust-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid rgba(201,168,76,0.2);
+    padding: 6px 12px;
+    border-radius: 100px;
+    font-size: 11px;
+    color: var(--gray);
+  }
+  .trust-badge span { color: var(--gold); font-size: 12px; }
+
+  /* RIGHT PANEL */
+  .right-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 48px 60px;
+    overflow-y: auto;
+  }
+
+  .right-top {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 48px;
+    font-size: 13px;
+    color: var(--gray);
+  }
+  .right-top a { color: var(--gold); text-decoration: none; margin-left: 6px; }
+  .right-top a:hover { text-decoration: underline; }
+
+  .form-container { max-width: 480px; width: 100%; margin: 0 auto; }
+
+  /* STEP INDICATOR */
+  .step-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 44px;
+  }
+  .step-dot {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(201,168,76,0.3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--gray);
+    transition: all 0.3s;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+    background: var(--black);
+  }
+  .step-dot.active { border-color: var(--gold); color: var(--gold); background: rgba(201,168,76,0.08); }
+  .step-dot.done { border-color: var(--green); background: rgba(76,175,131,0.1); color: var(--green); }
+  .step-line {
+    flex: 1;
+    height: 1px;
+    background: rgba(201,168,76,0.15);
+    transition: background 0.4s;
+  }
+  .step-line.done { background: var(--green); }
+  .step-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    margin-bottom: 36px;
+  }
+  .step-label { font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--gray); text-align: center; width: 32px; }
+  .step-label.active { color: var(--gold); }
+  .step-label.done { color: var(--green); }
+
+  /* FORM HEADING */
+  .form-heading { margin-bottom: 32px; }
+  .form-heading .step-tag { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+  .form-heading h1 { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 600; margin-bottom: 8px; }
+  .form-heading p { font-size: 14px; color: var(--gray); }
+
+  /* ACCOUNT TYPE CARDS */
+  .account-types { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 32px; }
+  .account-type {
+    border: 1.5px solid rgba(201,168,76,0.15);
+    border-radius: 8px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .account-type:hover { border-color: rgba(201,168,76,0.4); background: rgba(201,168,76,0.03); }
+  .account-type.selected { border-color: var(--gold); background: rgba(201,168,76,0.06); }
+  .account-type.selected::after {
+    content: '✓';
+    position: absolute;
+    top: 10px; right: 12px;
+    font-size: 12px;
+    color: var(--gold);
+    font-weight: 700;
+  }
+  .at-icon { font-size: 28px; margin-bottom: 10px; }
+  .at-name { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .at-desc { font-size: 11px; color: var(--gray); line-height: 1.5; }
+
+  /* FORM ELEMENTS */
+  .form-group { margin-bottom: 20px; }
+  .form-group label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--gray);
+    margin-bottom: 8px;
+  }
+  .form-group input,
+  .form-group select {
+    width: 100%;
+    background: var(--dark-2);
+    border: 1px solid rgba(201,168,76,0.12);
+    color: var(--white);
+    padding: 14px 16px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    font-weight: 300;
+    border-radius: 4px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    appearance: none;
+  }
+  .form-group input:focus,
+  .form-group select:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(201,168,76,0.08);
+  }
+  .form-group input::placeholder { color: #3A3A38; }
+  .form-group select option { background: var(--dark-2); }
+  .input-hint { font-size: 11px; color: var(--gray); margin-top: 6px; }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  /* PHONE INPUT with flag */
+  .phone-input-wrap { display: flex; gap: 0; }
+  .phone-flag {
+    background: var(--dark-2);
+    border: 1px solid rgba(201,168,76,0.12);
+    border-right: none;
+    padding: 14px 14px;
+    border-radius: 4px 0 0 4px;
+    font-size: 14px;
+    display: flex; align-items: center; gap: 6px;
+    color: var(--gray);
+    font-size: 13px;
+    white-space: nowrap;
+  }
+  .phone-flag-input {
+    flex: 1;
+    border-radius: 0 4px 4px 0 !important;
+  }
+
+  /* PASSWORD STRENGTH */
+  .pw-strength-bar {
+    height: 3px;
+    border-radius: 2px;
+    background: var(--dark-3);
+    margin-top: 8px;
+    overflow: hidden;
+  }
+  .pw-strength-fill {
+    height: 100%;
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.3s, background 0.3s;
+  }
+  .pw-strength-label { font-size: 11px; color: var(--gray); margin-top: 4px; }
+
+  /* CHECKBOX */
+  .checkbox-group { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 20px; }
+  .checkbox-group input[type="checkbox"] {
+    width: 18px; height: 18px;
+    border: 1.5px solid rgba(201,168,76,0.3);
+    border-radius: 3px;
+    background: var(--dark-2);
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-top: 1px;
+    accent-color: var(--gold);
+  }
+  .checkbox-group label { font-size: 12px; color: var(--gray); line-height: 1.5; cursor: pointer; }
+  .checkbox-group label a { color: var(--gold); text-decoration: none; }
+
+  /* OTP INPUTS */
+  .otp-group { display: flex; gap: 12px; justify-content: center; margin: 24px 0; }
+  .otp-input {
+    width: 54px; height: 60px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    background: var(--dark-2) !important;
+    border: 1.5px solid rgba(201,168,76,0.2) !important;
+    border-radius: 8px !important;
+    padding: 0 !important;
+    color: var(--gold) !important;
+  }
+  .otp-input:focus { border-color: var(--gold) !important; }
+
+  /* BUTTONS */
+  .btn-primary {
+    width: 100%;
+    background: var(--gold);
+    color: var(--black);
+    border: none;
+    padding: 16px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.25s;
+    margin-top: 8px;
+  }
+  .btn-primary:hover { background: var(--gold-light); transform: translateY(-1px); box-shadow: 0 8px 30px rgba(201,168,76,0.25); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .btn-secondary {
+    width: 100%;
+    background: transparent;
+    color: var(--white);
+    border: 1px solid rgba(255,255,255,0.12);
+    padding: 14px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+    margin-top: 10px;
+  }
+  .btn-secondary:hover { border-color: rgba(201,168,76,0.4); color: var(--gold); }
+
+  /* SUCCESS STATE */
+  .success-screen {
+    display: none;
+    text-align: center;
+    padding: 40px 0;
+  }
+  .success-screen.visible { display: block; }
+  .success-icon {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: rgba(76,175,131,0.1);
+    border: 2px solid var(--green);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+    margin: 0 auto 24px;
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+  }
+  .success-screen h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 40px; font-weight: 600;
+    margin-bottom: 12px;
+  }
+  .success-screen p { font-size: 15px; color: var(--gray); margin-bottom: 32px; line-height: 1.6; }
+
+  /* FORM STEPS */
+  .form-step { display: none; }
+  .form-step.active { display: block; animation: fadeSlide 0.4s ease both; }
+
+  @keyframes fadeSlide { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    body { flex-direction: column; cursor: auto; }
+    .cursor, .cursor-ring { display: none; }
+    .left-panel { width: 100%; min-height: auto; padding: 32px 24px 40px; }
+    .panel-visual { padding: 20px 0; }
+    .bank-illustration { max-width: 260px; }
+    .left-panel::after { display: none; }
+    .right-panel { padding: 40px 24px; }
+    .right-top { margin-bottom: 32px; }
+    .form-row { grid-template-columns: 1fr; }
+    .account-types { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- LEFT PANEL -->
+<div class="left-panel">
+  <a href="index.html" class="panel-logo">HOG</a>
+
+  <div class="panel-visual">
+    <!-- AI-STYLE ILLUSTRATED BANK SVG -->
+    <svg class="bank-illustration" viewBox="0 0 360 320" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#0A0A0A"/>
+          <stop offset="100%" stop-color="#111111"/>
+        </linearGradient>
+        <linearGradient id="buildingGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="rgba(201,168,76,0.15)"/>
+          <stop offset="100%" stop-color="rgba(201,168,76,0.04)"/>
+        </linearGradient>
+        <linearGradient id="glowGold" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#E8C97A"/>
+          <stop offset="100%" stop-color="#C9A84C"/>
+        </linearGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="3" result="blur"/>
+          <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+        </filter>
+        <filter id="softglow">
+          <feGaussianBlur stdDeviation="6" result="blur"/>
+          <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+        </filter>
+      </defs>
+
+      <!-- Sky bg -->
+      <rect width="360" height="320" fill="url(#skyGrad)" rx="12"/>
+
+      <!-- Stars -->
+      <circle cx="30" cy="25" r="1" fill="rgba(201,168,76,0.5)"/>
+      <circle cx="80" cy="15" r="1.5" fill="rgba(201,168,76,0.4)"/>
+      <circle cx="140" cy="30" r="1" fill="rgba(201,168,76,0.3)"/>
+      <circle cx="220" cy="18" r="1.2" fill="rgba(201,168,76,0.5)"/>
+      <circle cx="300" cy="28" r="1" fill="rgba(201,168,76,0.35)"/>
+      <circle cx="340" cy="12" r="1.5" fill="rgba(201,168,76,0.4)"/>
+      <circle cx="60" cy="50" r="0.8" fill="rgba(201,168,76,0.25)"/>
+      <circle cx="320" cy="55" r="1" fill="rgba(201,168,76,0.3)"/>
+
+      <!-- Ground -->
+      <rect x="0" y="265" width="360" height="55" rx="0" fill="rgba(201,168,76,0.04)"/>
+      <line x1="0" y1="265" x2="360" y2="265" stroke="rgba(201,168,76,0.15)" stroke-width="1"/>
+
+      <!-- Ground glow -->
+      <ellipse cx="180" cy="268" rx="130" ry="8" fill="rgba(201,168,76,0.06)"/>
+
+      <!-- MAIN BANK BUILDING -->
+      <!-- Base platform -->
+      <rect x="50" y="255" width="260" height="12" rx="2" fill="rgba(201,168,76,0.2)"/>
+
+      <!-- Building body -->
+      <rect x="65" y="140" width="230" height="118" fill="url(#buildingGrad)" stroke="rgba(201,168,76,0.2)" stroke-width="1"/>
+
+      <!-- Columns -->
+      <rect x="75" y="142" width="14" height="112" rx="3" fill="rgba(201,168,76,0.12)"/>
+      <rect x="97" y="142" width="14" height="112" rx="3" fill="rgba(201,168,76,0.12)"/>
+      <rect x="119" y="142" width="14" height="112" rx="3" fill="rgba(201,168,76,0.12)"/>
+      <rect x="141" y="142" width="14" height="112" rx="3" fill="rgba(201,168,76,0.12)"/>
+      <rect x="163" y="142" width="14" height="112" rx="3" fill="rgba(201,168,76,0.12)"/>
+      <rect x="185" y="142" width="14" height="112" rx="3" fill="rgba(201,168,76,0.12)"/>
+      <rect x="207" y="142" width="14" height="112" rx="3" fill="rgba(201,168,76,0.12)"/>
+      <rect x="229" y="142" width="14" height="112" rx="3" fill="rgba(201,168,76,0.12)"/>
+      <rect x="251" y="142" width="14" height="112" rx="3" fill="rgba(201,168,76,0.12)"/>
+      <rect x="271" y="142" width="14" height="112" rx="3" fill="rgba(201,168,76,0.12)"/>
+
+      <!-- Entablature / top band -->
+      <rect x="62" y="132" width="236" height="12" rx="1" fill="rgba(201,168,76,0.18)" stroke="rgba(201,168,76,0.25)" stroke-width="1"/>
+
+      <!-- Pediment / roof -->
+      <polygon points="50,132 180,62 310,132" fill="rgba(201,168,76,0.08)" stroke="rgba(201,168,76,0.3)" stroke-width="1.5"/>
+      <!-- Pediment inner line -->
+      <polygon points="70,132 180,78 290,132" fill="none" stroke="rgba(201,168,76,0.1)" stroke-width="1"/>
+
+      <!-- HOG text on pediment -->
+      <text x="180" y="112" text-anchor="middle" font-family="'Cormorant Garamond', serif" font-size="18" font-weight="700" fill="url(#glowGold)" letter-spacing="6" filter="url(#glow)">HOG</text>
+
+      <!-- Decorative pediment detail -->
+      <circle cx="180" cy="85" r="6" fill="rgba(201,168,76,0.15)" stroke="rgba(201,168,76,0.4)" stroke-width="1"/>
+      <circle cx="180" cy="85" r="3" fill="rgba(201,168,76,0.3)"/>
+
+      <!-- Main door arch -->
+      <path d="M158,255 L158,205 Q158,195 168,195 L192,195 Q202,195 202,205 L202,255 Z" fill="rgba(201,168,76,0.06)" stroke="rgba(201,168,76,0.25)" stroke-width="1.5"/>
+      <!-- Door handle -->
+      <circle cx="198" cy="228" r="2.5" fill="rgba(201,168,76,0.5)"/>
+
+      <!-- Windows left -->
+      <rect x="80" y="160" width="32" height="28" rx="3" fill="rgba(201,168,76,0.04)" stroke="rgba(201,168,76,0.2)" stroke-width="1"/>
+      <rect x="80" y="200" width="32" height="28" rx="3" fill="rgba(201,168,76,0.06)" stroke="rgba(201,168,76,0.2)" stroke-width="1"/>
+      <!-- Window glow left -->
+      <rect x="82" y="162" width="28" height="24" rx="2" fill="rgba(201,168,76,0.04)"/>
+      <line x1="96" y1="162" x2="96" y2="186" stroke="rgba(201,168,76,0.15)" stroke-width="0.5"/>
+      <line x1="80" y1="174" x2="112" y2="174" stroke="rgba(201,168,76,0.15)" stroke-width="0.5"/>
+
+      <!-- Windows right -->
+      <rect x="248" y="160" width="32" height="28" rx="3" fill="rgba(201,168,76,0.04)" stroke="rgba(201,168,76,0.2)" stroke-width="1"/>
+      <rect x="248" y="200" width="32" height="28" rx="3" fill="rgba(201,168,76,0.08)" stroke="rgba(201,168,76,0.25)" stroke-width="1"/>
+      <line x1="264" y1="200" x2="264" y2="228" stroke="rgba(201,168,76,0.15)" stroke-width="0.5"/>
+      <line x1="248" y1="214" x2="280" y2="214" stroke="rgba(201,168,76,0.15)" stroke-width="0.5"/>
+
+      <!-- Left side building (smaller) -->
+      <rect x="0" y="190" width="55" height="75" fill="rgba(201,168,76,0.04)" stroke="rgba(201,168,76,0.12)" stroke-width="1"/>
+      <rect x="0" y="182" width="55" height="10" fill="rgba(201,168,76,0.08)"/>
+      <rect x="8" y="196" width="16" height="24" rx="2" fill="rgba(201,168,76,0.06)" stroke="rgba(201,168,76,0.15)" stroke-width="0.5"/>
+      <rect x="30" y="196" width="16" height="24" rx="2" fill="rgba(201,168,76,0.06)" stroke="rgba(201,168,76,0.15)" stroke-width="0.5"/>
+      <rect x="15" y="232" width="25" height="33" rx="0" fill="rgba(201,168,76,0.04)" stroke="rgba(201,168,76,0.12)" stroke-width="0.5"/>
+
+      <!-- Right side building (smaller) -->
+      <rect x="305" y="195" width="55" height="70" fill="rgba(201,168,76,0.04)" stroke="rgba(201,168,76,0.12)" stroke-width="1"/>
+      <rect x="305" y="187" width="55" height="10" fill="rgba(201,168,76,0.08)"/>
+      <rect x="312" y="202" width="16" height="22" rx="2" fill="rgba(201,168,76,0.06)" stroke="rgba(201,168,76,0.15)" stroke-width="0.5"/>
+      <rect x="334" y="202" width="16" height="22" rx="2" fill="rgba(201,168,76,0.08)" stroke="rgba(201,168,76,0.2)" stroke-width="0.5"/>
+      <rect x="320" y="235" width="20" height="30" fill="rgba(201,168,76,0.04)" stroke="rgba(201,168,76,0.1)" stroke-width="0.5"/>
+
+      <!-- Floating currency symbols -->
+      <!-- USD bubble -->
+      <circle cx="36" cy="130" r="22" fill="rgba(201,168,76,0.08)" stroke="rgba(201,168,76,0.25)" stroke-width="1.5"/>
+      <text x="36" y="137" text-anchor="middle" font-size="18" font-weight="700" fill="url(#glowGold)" font-family="sans-serif">$</text>
+      <!-- USD pulse -->
+      <circle cx="36" cy="130" r="22" fill="none" stroke="rgba(201,168,76,0.15)" stroke-width="1">
+        <animate attributeName="r" values="22;30;22" dur="3s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.5;0;0.5" dur="3s" repeatCount="indefinite"/>
+      </circle>
+
+      <!-- GBP bubble -->
+      <circle cx="326" cy="110" r="20" fill="rgba(201,168,76,0.08)" stroke="rgba(201,168,76,0.25)" stroke-width="1.5"/>
+      <text x="326" y="117" text-anchor="middle" font-size="16" font-weight="700" fill="url(#glowGold)" font-family="sans-serif">£</text>
+      <circle cx="326" cy="110" r="20" fill="none" stroke="rgba(201,168,76,0.12)" stroke-width="1">
+        <animate attributeName="r" values="20;28;20" dur="3.5s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.4;0;0.4" dur="3.5s" repeatCount="indefinite"/>
+      </circle>
+
+      <!-- EUR bubble top -->
+      <circle cx="180" cy="36" r="16" fill="rgba(201,168,76,0.08)" stroke="rgba(201,168,76,0.2)" stroke-width="1"/>
+      <text x="180" y="42" text-anchor="middle" font-size="13" font-weight="700" fill="rgba(201,168,76,0.7)" font-family="sans-serif">€</text>
+
+      <!-- GHS bubble -->
+      <circle cx="90" cy="52" r="14" fill="rgba(201,168,76,0.06)" stroke="rgba(201,168,76,0.18)" stroke-width="1"/>
+      <text x="90" y="57" text-anchor="middle" font-size="9" font-weight="700" fill="rgba(201,168,76,0.6)" font-family="sans-serif">GH₵</text>
+
+      <!-- Connecting dotted lines from bubbles to building -->
+      <line x1="58" y1="130" x2="80" y2="145" stroke="rgba(201,168,76,0.15)" stroke-width="1" stroke-dasharray="4,3"/>
+      <line x1="306" y1="118" x2="290" y2="140" stroke="rgba(201,168,76,0.15)" stroke-width="1" stroke-dasharray="4,3"/>
+
+      <!-- Road / path -->
+      <rect x="148" y="265" width="64" height="55" fill="rgba(201,168,76,0.03)"/>
+      <line x1="180" y1="265" x2="180" y2="320" stroke="rgba(201,168,76,0.06)" stroke-width="1" stroke-dasharray="6,6"/>
+
+      <!-- Lamp posts -->
+      <line x1="115" y1="230" x2="115" y2="266" stroke="rgba(201,168,76,0.2)" stroke-width="1.5"/>
+      <path d="M115,230 Q115,222 123,222" fill="none" stroke="rgba(201,168,76,0.2)" stroke-width="1.5"/>
+      <circle cx="124" cy="222" r="3" fill="rgba(201,168,76,0.3)"/>
+      <circle cx="124" cy="222" r="6" fill="none" stroke="rgba(201,168,76,0.15)" stroke-width="0.5">
+        <animate attributeName="r" values="6;10;6" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/>
+      </circle>
+
+      <line x1="245" y1="230" x2="245" y2="266" stroke="rgba(201,168,76,0.2)" stroke-width="1.5"/>
+      <path d="M245,230 Q245,222 237,222" fill="none" stroke="rgba(201,168,76,0.2)" stroke-width="1.5"/>
+      <circle cx="236" cy="222" r="3" fill="rgba(201,168,76,0.3)"/>
+      <circle cx="236" cy="222" r="6" fill="none" stroke="rgba(201,168,76,0.15)" stroke-width="0.5">
+        <animate attributeName="r" values="6;10;6" dur="2.4s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.3;0;0.3" dur="2.4s" repeatCount="indefinite"/>
+      </circle>
+    </svg>
+  </div>
+
+  <div class="panel-tagline">
+    <h2>Your <span>global wallet</span><br>starts here.</h2>
+    <p>Join thousands of Ghanaians already sending money smarter with HOG. Takes less than 3 minutes.</p>
+    <div class="trust-badges">
+      <div class="trust-badge"><span>🔐</span> Bank-level security</div>
+      <div class="trust-badge"><span>✓</span> BOG Licensed</div>
+      <div class="trust-badge"><span>⚡</span> Instant setup</div>
+    </div>
+  </div>
+</div>
+
+<!-- RIGHT PANEL -->
+<div class="right-panel">
+  <div class="right-top">
+    Already have an account? <a href="index.html#auth">Sign in</a>
+  </div>
+
+  <div class="form-container">
+
+    <!-- STEP INDICATOR -->
+    <div class="step-indicator">
+      <div class="step-dot active" id="dot-1">1</div>
+      <div class="step-line" id="line-1"></div>
+      <div class="step-dot" id="dot-2">2</div>
+      <div class="step-line" id="line-2"></div>
+      <div class="step-dot" id="dot-3">3</div>
+      <div class="step-line" id="line-3"></div>
+      <div class="step-dot" id="dot-4">4</div>
+    </div>
+    <div class="step-labels">
+      <div class="step-label active" id="lbl-1">Account</div>
+      <div style="flex:1"></div>
+      <div class="step-label" id="lbl-2">Details</div>
+      <div style="flex:1"></div>
+      <div class="step-label" id="lbl-3">Security</div>
+      <div style="flex:1"></div>
+      <div class="step-label" id="lbl-4">Verify</div>
+    </div>
+
+    <!-- STEP 1: Account Type -->
+    <div class="form-step active" id="step-1">
+      <div class="form-heading">
+        <div class="step-tag">Step 1 of 4</div>
+        <h1>Welcome to HOG</h1>
+        <p>How will you primarily use your account?</p>
+      </div>
+      <div class="account-types">
+        <div class="account-type selected" onclick="selectType(this, 'personal')">
+          <div class="at-icon">👤</div>
+          <div class="at-name">Personal</div>
+          <div class="at-desc">Send & receive money, pay bills, get a virtual USD account</div>
+        </div>
+        <div class="account-type" onclick="selectType(this, 'business')">
+          <div class="at-icon">🏢</div>
+          <div class="at-name">Business</div>
+          <div class="at-desc">Accept payments, manage payroll, multiple currencies</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Select your country</label>
+        <select>
+          <option value="gh" selected>🇬🇭 Ghana</option>
+          <option value="ng">🇳🇬 Nigeria</option>
+          <option value="ke">🇰🇪 Kenya</option>
+          <option value="za">🇿🇦 South Africa</option>
+          <option value="sn">🇸🇳 Senegal</option>
+          <option value="other">🌍 Other African Country</option>
+        </select>
+      </div>
+      <button class="btn-primary" onclick="goStep(2)">Continue →</button>
+    </div>
+
+    <!-- STEP 2: Personal Details -->
+    <div class="form-step" id="step-2">
+      <div class="form-heading">
+        <div class="step-tag">Step 2 of 4</div>
+        <h1>Your Details</h1>
+        <p>Tell us a bit about yourself</p>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>First Name</label>
+          <input type="text" placeholder="e.g. Kwame" id="fname">
+        </div>
+        <div class="form-group">
+          <label>Last Name</label>
+          <input type="text" placeholder="e.g. Asante" id="lname">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" placeholder="you@example.com" id="email">
+      </div>
+      <div class="form-group">
+        <label>Phone Number</label>
+        <div class="phone-input-wrap">
+          <div class="phone-flag">🇬🇭 +233</div>
+          <input type="tel" class="phone-flag-input" placeholder="XX XXX XXXX" id="phone">
+        </div>
+        <div class="input-hint">We'll send a verification code to this number</div>
+      </div>
+      <div class="form-group">
+        <label>Date of Birth</label>
+        <input type="date" id="dob">
+        <div class="input-hint">You must be 18 or older to use HOG</div>
+      </div>
+      <button class="btn-primary" onclick="goStep(3)">Continue →</button>
+      <button class="btn-secondary" onclick="goStep(1)">← Back</button>
+    </div>
+
+    <!-- STEP 3: Security -->
+    <div class="form-step" id="step-3">
+      <div class="form-heading">
+        <div class="step-tag">Step 3 of 4</div>
+        <h1>Secure Your Account</h1>
+        <p>Create a strong password and a 4-digit transaction PIN</p>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" placeholder="Minimum 8 characters" id="password" oninput="checkPwStrength(this.value)">
+        <div class="pw-strength-bar"><div class="pw-strength-fill" id="pw-fill"></div></div>
+        <div class="pw-strength-label" id="pw-label">Enter a password</div>
+      </div>
+      <div class="form-group">
+        <label>Confirm Password</label>
+        <input type="password" placeholder="Re-enter your password" id="confirmpw">
+      </div>
+      <div class="form-group">
+        <label>4-Digit Transaction PIN</label>
+        <input type="password" placeholder="• • • •" maxlength="4" id="pin" style="letter-spacing:8px;font-size:18px">
+        <div class="input-hint">This PIN is required to authorize every transaction</div>
+      </div>
+      <div class="checkbox-group">
+        <input type="checkbox" id="terms">
+        <label for="terms">I agree to HOG's <a href="#">Terms of Service</a>, <a href="#">Privacy Policy</a>, and confirm I am 18 years or older</label>
+      </div>
+      <div class="checkbox-group">
+        <input type="checkbox" id="marketing" checked>
+        <label for="marketing">Send me helpful tips, promotions, and product updates from HOG</label>
+      </div>
+      <button class="btn-primary" onclick="goStep(4)">Continue →</button>
+      <button class="btn-secondary" onclick="goStep(2)">← Back</button>
+    </div>
+
+    <!-- STEP 4: Verify OTP -->
+    <div class="form-step" id="step-4">
+      <div class="form-heading">
+        <div class="step-tag">Step 4 of 4</div>
+        <h1>Verify Your Number</h1>
+        <p>We've sent a 6-digit code to your phone. Enter it below to complete your registration.</p>
+      </div>
+      <div class="otp-group">
+        <input type="text" class="otp-input" maxlength="1" onkeyup="otpMove(this, null, 'otp2')">
+        <input type="text" class="otp-input" id="otp2" maxlength="1" onkeyup="otpMove(this, 'otp1', 'otp3')">
+        <input type="text" class="otp-input" id="otp3" maxlength="1" onkeyup="otpMove(this, 'otp2', 'otp4')">
+        <input type="text" class="otp-input" id="otp4" maxlength="1" onkeyup="otpMove(this, 'otp3', 'otp5')">
+        <input type="text" class="otp-input" id="otp5" maxlength="1" onkeyup="otpMove(this, 'otp4', 'otp6')">
+        <input type="text" class="otp-input" id="otp6" maxlength="1" onkeyup="otpMove(this, 'otp5', null)">
+      </div>
+      <p style="font-size:13px;color:var(--gray);text-align:center;margin-bottom:24px">
+        Didn't get the code? <a href="#" style="color:var(--gold);text-decoration:none" onclick="return false">Resend in <span id="countdown">60</span>s</a>
+      </p>
+      <button class="btn-primary" onclick="completeSignup()">Create My HOG Account ✓</button>
+      <button class="btn-secondary" onclick="goStep(3)">← Back</button>
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="success-screen" id="success-screen">
+      <div class="success-icon">✓</div>
+      <h2>Welcome to <span style="color:var(--gold)">HOG</span>!</h2>
+      <p>Your account has been created successfully.<br>You're now part of Africa's fastest growing payment platform.</p>
+      <a href="index.html" class="btn-primary" style="display:block;text-decoration:none;text-align:center">Go to Homepage</a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // CURSOR
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; cursor.style.left = mx+'px'; cursor.style.top = my+'px'; });
+  function animRing() { rx += (mx-rx)*0.12; ry += (my-ry)*0.12; ring.style.left = rx+'px'; ring.style.top = ry+'px'; requestAnimationFrame(animRing); }
+  animRing();
+
+  // ACCOUNT TYPE SELECT
+  function selectType(el, type) {
+    document.querySelectorAll('.account-type').forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  // STEP NAV
+  let currentStep = 1;
+  function goStep(n) {
+    document.getElementById('step-' + currentStep).classList.remove('active');
+    // Update dots & lines
+    for (let i = 1; i <= 4; i++) {
+      const dot = document.getElementById('dot-' + i);
+      const lbl = document.getElementById('lbl-' + i);
+      if (i < n) {
+        dot.classList.remove('active'); dot.classList.add('done'); dot.textContent = '✓';
+        lbl.classList.remove('active'); lbl.classList.add('done');
+      } else if (i === n) {
+        dot.classList.remove('done'); dot.classList.add('active'); dot.textContent = i;
+        lbl.classList.remove('done'); lbl.classList.add('active');
+      } else {
+        dot.classList.remove('active','done'); dot.textContent = i;
+        lbl.classList.remove('active','done');
+      }
+      if (i < 4) {
+        const line = document.getElementById('line-' + i);
+        if (line) line.classList.toggle('done', i < n);
+      }
+    }
+    currentStep = n;
+    document.getElementById('step-' + n).classList.add('active');
+    document.querySelector('.right-panel').scrollTop = 0;
+  }
+
+  // PASSWORD STRENGTH
+  function checkPwStrength(pw) {
+    const fill = document.getElementById('pw-fill');
+    const label = document.getElementById('pw-label');
+    let strength = 0;
+    if (pw.length >= 8) strength++;
+    if (/[A-Z]/.test(pw)) strength++;
+    if (/[0-9]/.test(pw)) strength++;
+    if (/[^A-Za-z0-9]/.test(pw)) strength++;
+    const configs = [
+      { w: '0%', c: 'transparent', t: 'Enter a password' },
+      { w: '25%', c: '#E05C5C', t: 'Weak' },
+      { w: '50%', c: '#E8A84C', t: 'Fair' },
+      { w: '75%', c: '#C9A84C', t: 'Good' },
+      { w: '100%', c: '#4CAF83', t: 'Strong ✓' },
+    ];
+    const cfg = configs[strength];
+    fill.style.width = cfg.w;
+    fill.style.background = cfg.c;
+    label.textContent = cfg.t;
+    label.style.color = cfg.c;
+  }
+
+  // OTP MOVE
+  function otpMove(current, prevId, nextId) {
+    if (current.value.length === 1 && nextId) document.getElementById(nextId).focus();
+  }
+
+  // COMPLETE SIGNUP
+  function completeSignup() {
+    for (let i = 1; i <= 4; i++) {
+      const dot = document.getElementById('dot-' + i);
+      dot.classList.remove('active'); dot.classList.add('done'); dot.textContent = '✓';
+    }
+    document.getElementById('step-4').classList.remove('active');
+    document.getElementById('success-screen').classList.add('visible');
+    document.querySelector('.right-panel').scrollTop = 0;
+  }
+
+  // COUNTDOWN TIMER
+  let timeLeft = 60;
+  const countdownEl = document.getElementById('countdown');
+  const timer = setInterval(() => {
+    timeLeft--;
+    if (countdownEl) countdownEl.textContent = timeLeft;
+    if (timeLeft <= 0) { clearInterval(timer); if (countdownEl) countdownEl.parentElement.textContent = 'Resend code'; }
+  }, 1000);
+</script>
+</body>
+</html>

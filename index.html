@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HOG — Africa's Payment Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8C97A;
+    --gold-dim: #8A6F35;
+    --black: #0A0A0A;
+    --dark: #111111;
+    --dark-2: #1A1A1A;
+    --dark-3: #222222;
+    --white: #F5F0E8;
+    --gray: #888880;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* CUSTOM CURSOR */
+  .cursor {
+    width: 12px; height: 12px;
+    background: var(--gold);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 99999;
+    transition: transform 0.15s ease, width 0.2s, height 0.2s;
+    transform: translate(-50%, -50%);
+  }
+  .cursor-ring {
+    width: 40px; height: 40px;
+    border: 1px solid rgba(201,168,76,0.4);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 99998;
+    transform: translate(-50%, -50%);
+    transition: all 0.12s ease;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+    padding: 24px 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(to bottom, rgba(10,10,10,0.95), transparent);
+    backdrop-filter: blur(2px);
+    transition: all 0.3s;
+  }
+  nav.scrolled {
+    background: rgba(10,10,10,0.97);
+    border-bottom: 1px solid rgba(201,168,76,0.15);
+    padding: 16px 60px;
+  }
+  .logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 6px;
+    text-decoration: none;
+  }
+  .logo span { color: var(--white); }
+  nav ul {
+    list-style: none;
+    display: flex;
+    gap: 40px;
+    align-items: center;
+  }
+  nav ul a {
+    color: var(--gray);
+    text-decoration: none;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  nav ul a:hover { color: var(--gold); }
+  .nav-cta {
+    background: var(--gold) !important;
+    color: var(--black) !important;
+    padding: 10px 24px;
+    border-radius: 2px;
+    font-weight: 600 !important;
+    letter-spacing: 1px !important;
+    transition: background 0.2s, transform 0.2s !important;
+  }
+  .nav-cta:hover { background: var(--gold-light) !important; transform: translateY(-1px); }
+
+  .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
+  .hamburger span { width: 24px; height: 1px; background: var(--gold); display: block; transition: 0.3s; }
+
+  /* HERO */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    padding: 0 60px;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 70% 50%, rgba(201,168,76,0.07) 0%, transparent 60%),
+                radial-gradient(ellipse at 20% 80%, rgba(201,168,76,0.04) 0%, transparent 50%);
+  }
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image: linear-gradient(rgba(201,168,76,0.04) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(201,168,76,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  }
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 700px;
+    animation: fadeUp 1s ease both;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid rgba(201,168,76,0.3);
+    padding: 6px 16px;
+    border-radius: 100px;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 32px;
+    animation: fadeUp 1s 0.1s ease both;
+  }
+  .hero-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--gold);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(52px, 7vw, 88px);
+    font-weight: 600;
+    line-height: 1.05;
+    margin-bottom: 24px;
+    animation: fadeUp 1s 0.2s ease both;
+  }
+  h1 .gold { color: var(--gold); }
+  .hero-sub {
+    font-size: 17px;
+    color: var(--gray);
+    line-height: 1.7;
+    max-width: 520px;
+    margin-bottom: 48px;
+    font-weight: 300;
+    animation: fadeUp 1s 0.3s ease both;
+  }
+  .hero-buttons {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    animation: fadeUp 1s 0.4s ease both;
+  }
+  .btn-primary {
+    background: var(--gold);
+    color: var(--black);
+    border: none;
+    padding: 16px 36px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 2px;
+    text-decoration: none;
+    transition: all 0.25s;
+    display: inline-block;
+  }
+  .btn-primary:hover { background: var(--gold-light); transform: translateY(-2px); box-shadow: 0 12px 40px rgba(201,168,76,0.3); }
+  .btn-secondary {
+    background: transparent;
+    color: var(--white);
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 16px 36px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 2px;
+    text-decoration: none;
+    transition: all 0.25s;
+    display: inline-block;
+  }
+  .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+
+  .hero-visual {
+    position: absolute;
+    right: 60px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 420px;
+    animation: fadeUp 1s 0.5s ease both;
+  }
+  .phone-mockup {
+    background: var(--dark-2);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 32px;
+    padding: 28px 24px;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 60px rgba(201,168,76,0.05);
+    position: relative;
+    overflow: hidden;
+  }
+  .phone-mockup::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 30%; right: 30%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .phone-notch {
+    width: 80px; height: 6px;
+    background: var(--dark-3);
+    border-radius: 10px;
+    margin: 0 auto 24px;
+  }
+  .phone-bal-label { font-size: 11px; color: var(--gray); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+  .phone-balance {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 42px;
+    font-weight: 600;
+    color: var(--gold);
+    margin-bottom: 24px;
+  }
+  .phone-balance span { font-size: 20px; }
+  .phone-actions {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .phone-action {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .phone-action-icon {
+    width: 44px; height: 44px;
+    background: var(--dark-3);
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+  .phone-action span { font-size: 10px; color: var(--gray); }
+  .phone-txns { display: flex; flex-direction: column; gap: 12px; }
+  .phone-txn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    background: var(--dark-3);
+    border-radius: 10px;
+  }
+  .txn-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .txn-info { flex: 1; }
+  .txn-name { font-size: 13px; font-weight: 500; }
+  .txn-date { font-size: 11px; color: var(--gray); }
+  .txn-amount { font-size: 14px; font-weight: 600; }
+  .txn-amount.cr { color: #4CAF83; }
+  .txn-amount.dr { color: #E05C5C; }
+
+  /* STATS BAR */
+  .stats-bar {
+    background: var(--dark-2);
+    border-top: 1px solid rgba(201,168,76,0.1);
+    border-bottom: 1px solid rgba(201,168,76,0.1);
+    padding: 40px 60px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+  }
+  .stat-item {
+    text-align: center;
+    padding: 0 20px;
+    border-right: 1px solid rgba(201,168,76,0.1);
+  }
+  .stat-item:last-child { border-right: none; }
+  .stat-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 44px;
+    font-weight: 700;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .stat-label { font-size: 12px; color: var(--gray); letter-spacing: 2px; text-transform: uppercase; }
+
+  /* SECTIONS */
+  section { padding: 100px 60px; }
+  .section-tag {
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+  }
+  h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(36px, 5vw, 60px);
+    font-weight: 600;
+    line-height: 1.1;
+    margin-bottom: 20px;
+  }
+  .section-sub {
+    font-size: 16px;
+    color: var(--gray);
+    line-height: 1.7;
+    max-width: 560px;
+    margin-bottom: 60px;
+  }
+
+  /* FEATURES */
+  #features { background: var(--dark); }
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    background: rgba(201,168,76,0.08);
+  }
+  .feature-card {
+    background: var(--dark);
+    padding: 48px 40px;
+    transition: background 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .feature-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transition: transform 0.3s;
+  }
+  .feature-card:hover { background: var(--dark-2); }
+  .feature-card:hover::after { transform: scaleX(1); }
+  .feature-icon {
+    font-size: 36px;
+    margin-bottom: 20px;
+    display: block;
+  }
+  .feature-card h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--white);
+  }
+  .feature-card p { font-size: 14px; color: var(--gray); line-height: 1.7; }
+
+  /* FEATURE ILLUSTRATIONS */
+  .feature-illustration {
+    width: 100%;
+    height: 160px;
+    margin-bottom: 24px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--dark-3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .feature-illustration svg {
+    width: 100%;
+    height: 100%;
+  }
+  .feature-card:hover .feature-illustration svg .anim-el {
+    animation-play-state: running;
+  }
+
+  /* HOW IT WORKS */
+  #how {
+    background: var(--black);
+    position: relative;
+  }
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 40px;
+    margin-top: 60px;
+    position: relative;
+  }
+  .steps::before {
+    content: '';
+    position: absolute;
+    top: 30px;
+    left: 12%;
+    right: 12%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dim), var(--gold-dim), transparent);
+  }
+  .step { text-align: center; }
+  .step-num {
+    width: 60px; height: 60px;
+    background: var(--dark-2);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--gold);
+    position: relative;
+    z-index: 1;
+    background: var(--black);
+  }
+  .step h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  .step p { font-size: 14px; color: var(--gray); line-height: 1.7; }
+
+  /* PRICING */
+  #pricing { background: var(--dark); }
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 60px;
+  }
+  .pricing-card {
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: 4px;
+    padding: 48px 36px;
+    position: relative;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .pricing-card:hover { transform: translateY(-6px); box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
+  .pricing-card.featured {
+    border-color: var(--gold);
+    background: linear-gradient(135deg, rgba(201,168,76,0.06) 0%, transparent 100%);
+  }
+  .plan-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--gold);
+    color: var(--black);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 16px;
+    border-radius: 100px;
+  }
+  .plan-name {
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+  }
+  .plan-price {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 56px;
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .plan-price span { font-size: 20px; }
+  .plan-period { font-size: 13px; color: var(--gray); margin-bottom: 32px; }
+  .plan-features { list-style: none; margin-bottom: 36px; }
+  .plan-features li {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-size: 14px;
+    color: var(--gray);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .plan-features li::before { content: '✦'; color: var(--gold); font-size: 10px; }
+  .plan-features li.included { color: var(--white); }
+
+  /* ABOUT */
+  #about {
+    background: var(--black);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+  .about-visual {
+    position: relative;
+  }
+  .africa-map {
+    width: 100%;
+    max-width: 400px;
+    position: relative;
+  }
+  .map-svg { width: 100%; opacity: 0.6; filter: drop-shadow(0 0 20px rgba(201,168,76,0.2)); }
+  .map-dots {
+    position: absolute;
+    inset: 0;
+  }
+  .map-dot {
+    position: absolute;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--gold);
+    animation: mapPulse 2s infinite;
+  }
+  .map-dot::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 1px solid var(--gold);
+    animation: mapPulse 2s infinite 0.5s;
+  }
+  .map-dot:nth-child(1) { top: 42%; left: 44%; animation-delay: 0s; }
+  .map-dot:nth-child(2) { top: 48%; left: 66%; animation-delay: 0.4s; }
+  .map-dot:nth-child(3) { top: 35%; left: 57%; animation-delay: 0.8s; }
+  .map-dot:nth-child(4) { top: 62%; left: 54%; animation-delay: 1.2s; }
+  .map-dot:nth-child(5) { top: 52%; left: 30%; animation-delay: 1.6s; }
+  .about-content .section-sub { margin-bottom: 40px; }
+  .about-values { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .about-val {
+    border-left: 2px solid var(--gold-dim);
+    padding-left: 16px;
+  }
+  .about-val h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .about-val p { font-size: 12px; color: var(--gray); line-height: 1.5; }
+
+  /* CTA SECTION */
+  #cta {
+    background: linear-gradient(135deg, rgba(201,168,76,0.1) 0%, transparent 50%, rgba(201,168,76,0.05) 100%);
+    border-top: 1px solid rgba(201,168,76,0.15);
+    border-bottom: 1px solid rgba(201,168,76,0.15);
+    text-align: center;
+    padding: 100px 60px;
+  }
+  #cta h2 { font-size: clamp(40px, 6vw, 72px); max-width: 700px; margin: 0 auto 24px; }
+  #cta p { color: var(--gray); font-size: 17px; max-width: 500px; margin: 0 auto 48px; line-height: 1.7; }
+
+  /* FOOTER */
+  footer {
+    background: var(--dark-2);
+    padding: 60px 60px 30px;
+    border-top: 1px solid rgba(201,168,76,0.1);
+  }
+  .footer-top {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr;
+    gap: 60px;
+    margin-bottom: 60px;
+  }
+  .footer-brand .logo { display: block; margin-bottom: 16px; }
+  .footer-brand p { font-size: 13px; color: var(--gray); line-height: 1.7; max-width: 240px; }
+  .footer-col h4 {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 20px;
+  }
+  .footer-col ul { list-style: none; }
+  .footer-col ul li { margin-bottom: 10px; }
+  .footer-col ul a { font-size: 13px; color: var(--gray); text-decoration: none; transition: color 0.2s; }
+  .footer-col ul a:hover { color: var(--white); }
+  .footer-bottom {
+    border-top: 1px solid rgba(255,255,255,0.05);
+    padding-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--gray);
+  }
+  .footer-bottom span { color: var(--gold); }
+
+  /* MOBILE NAV */
+  .mobile-menu {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--black);
+    z-index: 999;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+  }
+  .mobile-menu.open { display: flex; }
+  .mobile-menu a {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    color: var(--white);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .mobile-menu a:hover { color: var(--gold); }
+  .close-menu {
+    position: absolute;
+    top: 24px; right: 24px;
+    font-size: 32px;
+    color: var(--gold);
+    cursor: pointer;
+    background: none;
+    border: none;
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  @keyframes mapPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    nav { padding: 20px 24px; }
+    nav.scrolled { padding: 14px 24px; }
+    nav ul { display: none; }
+    .hamburger { display: flex; }
+    #hero { padding: 100px 24px 60px; }
+    .hero-visual { display: none; }
+    .stats-bar { grid-template-columns: repeat(2,1fr); padding: 40px 24px; gap: 24px; }
+    .stat-item { border-right: none; border-bottom: 1px solid rgba(201,168,76,0.1); padding-bottom: 24px; }
+    section { padding: 70px 24px; }
+    .features-grid { grid-template-columns: 1fr; }
+    .steps { grid-template-columns: 1fr 1fr; }
+    .steps::before { display: none; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    #about { grid-template-columns: 1fr; padding: 70px 24px; gap: 40px; }
+    .about-visual { display: none; }
+    #auth { grid-template-columns: 1fr; }
+    .auth-visual { display: none; }
+    .auth-panel { padding: 60px 24px; }
+    .footer-top { grid-template-columns: 1fr 1fr; gap: 40px; }
+    footer { padding: 60px 24px 30px; }
+    .footer-bottom { flex-direction: column; gap: 10px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <button class="close-menu" onclick="toggleMenu()">✕</button>
+  <a href="#features" onclick="toggleMenu()">Features</a>
+  <a href="#how" onclick="toggleMenu()">How It Works</a>
+  <a href="#pricing" onclick="toggleMenu()">Pricing</a>
+  <a href="#about" onclick="toggleMenu()">About</a>
+  <a href="signup.html" onclick="toggleMenu()" style="color:var(--gold)">Get Started</a>
+</div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a href="#" class="logo">HOG</a>
+  <ul>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="signup.html" class="nav-cta">Get Started</a></li>
+  </ul>
+  <div class="hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-badge">Now live across Africa</div>
+    <h1>Money Moves<br><span class="gold">Without</span><br>Borders</h1>
+    <p class="hero-sub">HOG is Africa's most powerful payment platform. Send money across Ghana, Africa, and the world — instantly, securely, and for less.</p>
+    <div class="hero-buttons">
+      <a href="signup.html" class="btn-primary">Create Free Account</a>
+      <a href="#how" class="btn-secondary">See How It Works</a>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="phone-mockup">
+      <div class="phone-notch"></div>
+      <p class="phone-bal-label">Total Balance</p>
+      <div class="phone-balance"><span>GH₵</span> 12,450<span>.00</span></div>
+      <div class="phone-actions">
+        <div class="phone-action">
+          <div class="phone-action-icon">↑</div>
+          <span>Send</span>
+        </div>
+        <div class="phone-action">
+          <div class="phone-action-icon">↓</div>
+          <span>Receive</span>
+        </div>
+        <div class="phone-action">
+          <div class="phone-action-icon">⇄</div>
+          <span>Swap</span>
+        </div>
+        <div class="phone-action">
+          <div class="phone-action-icon">+</div>
+          <span>Top Up</span>
+        </div>
+      </div>
+      <div class="phone-txns">
+        <div class="phone-txn">
+          <div class="txn-avatar" style="background:rgba(76,175,131,0.15);color:#4CAF83">KA</div>
+          <div class="txn-info">
+            <div class="txn-name">Kwame Asante</div>
+            <div class="txn-date">Today, 9:42 AM</div>
+          </div>
+          <div class="txn-amount cr">+GH₵ 500</div>
+        </div>
+        <div class="phone-txn">
+          <div class="txn-avatar" style="background:rgba(224,92,92,0.15);color:#E05C5C">NG</div>
+          <div class="txn-info">
+            <div class="txn-name">To Nigeria (NGN)</div>
+            <div class="txn-date">Yesterday</div>
+          </div>
+          <div class="txn-amount dr">-GH₵ 1,200</div>
+        </div>
+        <div class="phone-txn">
+          <div class="txn-avatar" style="background:rgba(201,168,76,0.15);color:#C9A84C">AB</div>
+          <div class="txn-info">
+            <div class="txn-name">Ama Boateng</div>
+            <div class="txn-date">Mon, Feb 22</div>
+          </div>
+          <div class="txn-amount cr">+GH₵ 2,000</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar reveal">
+  <div class="stat-item">
+    <div class="stat-num">54+</div>
+    <div class="stat-label">African Countries</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">0.5%</div>
+    <div class="stat-label">Transfer Fee</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">< 30s</div>
+    <div class="stat-label">Transfer Speed</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">256-bit</div>
+    <div class="stat-label">Encryption</div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-tag">What We Offer</div>
+  <h2>Built for Africa.<br>Ready for the World.</h2>
+  <p class="section-sub">Every feature designed to solve real problems Africans face with money movement — from mobile money to global bank accounts.</p>
+  <div class="features-grid reveal">
+
+    <!-- MOBILE MONEY -->
+    <div class="feature-card">
+      <div class="feature-illustration">
+        <svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1A1A1A"/><stop offset="100%" stop-color="#222"/></linearGradient>
+            <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#E8C97A"/><stop offset="100%" stop-color="#C9A84C"/></linearGradient>
+          </defs>
+          <rect width="320" height="160" fill="url(#g1)"/>
+          <!-- Grid lines -->
+          <line x1="0" y1="40" x2="320" y2="40" stroke="rgba(201,168,76,0.06)" stroke-width="1"/>
+          <line x1="0" y1="80" x2="320" y2="80" stroke="rgba(201,168,76,0.06)" stroke-width="1"/>
+          <line x1="0" y1="120" x2="320" y2="120" stroke="rgba(201,168,76,0.06)" stroke-width="1"/>
+          <!-- Phone body -->
+          <rect x="120" y="20" width="80" height="120" rx="12" fill="#111" stroke="rgba(201,168,76,0.4)" stroke-width="1.5"/>
+          <!-- Screen -->
+          <rect x="126" y="32" width="68" height="90" rx="4" fill="#0D0D0D"/>
+          <!-- Notch -->
+          <rect x="148" y="28" width="24" height="4" rx="2" fill="#1A1A1A"/>
+          <!-- Screen content -->
+          <rect x="132" y="40" width="56" height="6" rx="2" fill="rgba(201,168,76,0.3)"/>
+          <text x="160" y="62" text-anchor="middle" font-size="11" fill="#C9A84C" font-family="sans-serif" font-weight="bold">GH₵ 1,240</text>
+          <rect x="132" y="68" width="24" height="22" rx="6" fill="rgba(201,168,76,0.12)" stroke="rgba(201,168,76,0.3)" stroke-width="1"/>
+          <text x="144" y="83" text-anchor="middle" font-size="9" fill="#C9A84C" font-family="sans-serif">↑</text>
+          <rect x="162" y="68" width="24" height="22" rx="6" fill="rgba(201,168,76,0.12)" stroke="rgba(201,168,76,0.3)" stroke-width="1"/>
+          <text x="174" y="83" text-anchor="middle" font-size="9" fill="#C9A84C" font-family="sans-serif">↓</text>
+          <rect x="132" y="96" width="56" height="8" rx="3" fill="rgba(255,255,255,0.05)"/>
+          <rect x="132" y="108" width="40" height="6" rx="3" fill="rgba(255,255,255,0.04)"/>
+          <!-- Network logos floating -->
+          <circle cx="60" cy="80" r="20" fill="rgba(255,200,0,0.08)" stroke="rgba(255,200,0,0.2)" stroke-width="1"/>
+          <text x="60" y="85" text-anchor="middle" font-size="11" fill="rgba(255,200,0,0.7)" font-family="sans-serif" font-weight="bold">MTN</text>
+          <circle cx="260" cy="60" r="18" fill="rgba(255,50,50,0.08)" stroke="rgba(255,50,50,0.2)" stroke-width="1"/>
+          <text x="260" y="65" text-anchor="middle" font-size="9" fill="rgba(255,100,100,0.7)" font-family="sans-serif" font-weight="bold">Airtel</text>
+          <circle cx="260" cy="110" r="16" fill="rgba(0,150,255,0.08)" stroke="rgba(0,150,255,0.2)" stroke-width="1"/>
+          <text x="260" y="115" text-anchor="middle" font-size="8" fill="rgba(100,180,255,0.7)" font-family="sans-serif" font-weight="bold">Telecel</text>
+          <!-- Connecting lines -->
+          <line x1="80" y1="80" x2="120" y2="85" stroke="rgba(201,168,76,0.2)" stroke-width="1" stroke-dasharray="4,3"/>
+          <line x1="240" y1="65" x2="200" y2="75" stroke="rgba(201,168,76,0.2)" stroke-width="1" stroke-dasharray="4,3"/>
+          <line x1="244" y1="108" x2="200" y2="100" stroke="rgba(201,168,76,0.2)" stroke-width="1" stroke-dasharray="4,3"/>
+        </svg>
+      </div>
+      <h3>Mobile Money Integration</h3>
+      <p>Send and receive directly from MTN MoMo, Telecel Cash, and AirtelTigo Money. No bank account required to get started.</p>
+    </div>
+
+    <!-- PAN-AFRICAN TRANSFERS -->
+    <div class="feature-card">
+      <div class="feature-illustration">
+        <svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+          <rect width="320" height="160" fill="url(#g1)"/>
+          <!-- Africa silhouette simplified -->
+          <path d="M140 15 L160 12 L178 18 L188 30 L190 48 L195 58 L192 75 L196 90 L190 108 L180 125 L168 140 L160 148 L152 140 L140 122 L132 105 L128 88 L130 72 L124 58 L126 42 L132 28 Z" fill="rgba(201,168,76,0.08)" stroke="rgba(201,168,76,0.25)" stroke-width="1.5"/>
+          <!-- Country dots -->
+          <circle cx="155" cy="78" r="4" fill="#C9A84C" opacity="0.9">
+            <animate attributeName="r" values="4;6;4" dur="2s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="172" cy="70" r="3" fill="#C9A84C" opacity="0.7">
+            <animate attributeName="r" values="3;5;3" dur="2.4s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="165" cy="95" r="3" fill="#C9A84C" opacity="0.7">
+            <animate attributeName="r" values="3;5;3" dur="1.8s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="148" cy="88" r="3" fill="#C9A84C" opacity="0.6">
+            <animate attributeName="r" values="3;4;3" dur="2.2s" repeatCount="indefinite"/>
+          </circle>
+          <!-- Transfer arcs -->
+          <path d="M155 78 Q120 50 72 62" fill="none" stroke="rgba(201,168,76,0.4)" stroke-width="1.5" stroke-dasharray="5,3"/>
+          <path d="M165 95 Q220 120 258 100" fill="none" stroke="rgba(201,168,76,0.35)" stroke-width="1.5" stroke-dasharray="5,3"/>
+          <!-- Left node -->
+          <circle cx="68" cy="62" r="14" fill="rgba(201,168,76,0.1)" stroke="rgba(201,168,76,0.3)" stroke-width="1"/>
+          <text x="68" y="67" text-anchor="middle" font-size="9" fill="#C9A84C" font-family="sans-serif" font-weight="bold">GH₵</text>
+          <!-- Right node -->
+          <circle cx="262" cy="100" r="14" fill="rgba(201,168,76,0.1)" stroke="rgba(201,168,76,0.3)" stroke-width="1"/>
+          <text x="262" y="105" text-anchor="middle" font-size="9" fill="#C9A84C" font-family="sans-serif" font-weight="bold">NGN</text>
+          <!-- Moving dot on path -->
+          <circle r="3" fill="#E8C97A">
+            <animateMotion dur="3s" repeatCount="indefinite">
+              <mpath href="#arc1"/>
+            </animateMotion>
+          </circle>
+          <path id="arc1" d="M155 78 Q120 50 72 62" fill="none"/>
+          <!-- Labels -->
+          <text x="68" y="86" text-anchor="middle" font-size="7" fill="rgba(201,168,76,0.5)" font-family="sans-serif">Ghana</text>
+          <text x="262" y="120" text-anchor="middle" font-size="7" fill="rgba(201,168,76,0.5)" font-family="sans-serif">Nigeria</text>
+          <text x="155" y="72" text-anchor="middle" font-size="7" fill="rgba(201,168,76,0.6)" font-family="sans-serif">Accra</text>
+          <!-- 54 countries badge -->
+          <rect x="220" y="18" width="76" height="28" rx="14" fill="rgba(201,168,76,0.12)" stroke="rgba(201,168,76,0.3)" stroke-width="1"/>
+          <text x="258" y="30" text-anchor="middle" font-size="8" fill="#C9A84C" font-family="sans-serif" font-weight="bold">54 COUNTRIES</text>
+          <text x="258" y="40" text-anchor="middle" font-size="7" fill="rgba(201,168,76,0.6)" font-family="sans-serif">Pan-African</text>
+        </svg>
+      </div>
+      <h3>Pan-African Transfers</h3>
+      <p>Send money to 54 African countries in seconds. Nigeria, Kenya, Senegal, South Africa — all covered with real-time exchange rates.</p>
+    </div>
+
+    <!-- VIRTUAL USD ACCOUNT -->
+    <div class="feature-card">
+      <div class="feature-illustration">
+        <svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+          <rect width="320" height="160" fill="url(#g1)"/>
+          <!-- Bank building illustration -->
+          <!-- Base -->
+          <rect x="90" y="120" width="140" height="8" rx="2" fill="rgba(201,168,76,0.3)"/>
+          <!-- Building body -->
+          <rect x="100" y="70" width="120" height="52" fill="rgba(201,168,76,0.06)" stroke="rgba(201,168,76,0.2)" stroke-width="1"/>
+          <!-- Columns -->
+          <rect x="108" y="72" width="8" height="48" rx="2" fill="rgba(201,168,76,0.15)"/>
+          <rect x="124" y="72" width="8" height="48" rx="2" fill="rgba(201,168,76,0.15)"/>
+          <rect x="140" y="72" width="8" height="48" rx="2" fill="rgba(201,168,76,0.15)"/>
+          <rect x="156" y="72" width="8" height="48" rx="2" fill="rgba(201,168,76,0.15)"/>
+          <rect x="172" y="72" width="8" height="48" rx="2" fill="rgba(201,168,76,0.15)"/>
+          <rect x="188" y="72" width="8" height="48" rx="2" fill="rgba(201,168,76,0.15)"/>
+          <rect x="204" y="72" width="8" height="48" rx="2" fill="rgba(201,168,76,0.15)"/>
+          <!-- Roof / pediment -->
+          <polygon points="90,70 160,30 230,70" fill="rgba(201,168,76,0.1)" stroke="rgba(201,168,76,0.3)" stroke-width="1.5"/>
+          <!-- Top bar -->
+          <rect x="90" y="66" width="140" height="6" rx="1" fill="rgba(201,168,76,0.2)"/>
+          <!-- HOG on pediment -->
+          <text x="160" y="58" text-anchor="middle" font-size="10" fill="#C9A84C" font-family="sans-serif" font-weight="bold" letter-spacing="3">HOG</text>
+          <!-- Door -->
+          <rect x="148" y="98" width="24" height="24" rx="12" fill="rgba(201,168,76,0.08)" stroke="rgba(201,168,76,0.3)" stroke-width="1"/>
+          <!-- USD badge floating -->
+          <rect x="28" y="40" width="52" height="36" rx="8" fill="rgba(201,168,76,0.12)" stroke="rgba(201,168,76,0.35)" stroke-width="1.5"/>
+          <text x="54" y="55" text-anchor="middle" font-size="14" fill="#E8C97A" font-family="sans-serif" font-weight="bold">$</text>
+          <text x="54" y="68" text-anchor="middle" font-size="7" fill="rgba(201,168,76,0.6)" font-family="sans-serif">Virtual USD</text>
+          <!-- GBP badge -->
+          <rect x="240" y="30" width="52" height="36" rx="8" fill="rgba(201,168,76,0.12)" stroke="rgba(201,168,76,0.35)" stroke-width="1.5"/>
+          <text x="266" y="46" text-anchor="middle" font-size="13" fill="#E8C97A" font-family="sans-serif" font-weight="bold">£</text>
+          <text x="266" y="58" text-anchor="middle" font-size="7" fill="rgba(201,168,76,0.6)" font-family="sans-serif">Virtual GBP</text>
+          <!-- EUR badge -->
+          <rect x="240" y="90" width="52" height="30" rx="8" fill="rgba(201,168,76,0.08)" stroke="rgba(201,168,76,0.2)" stroke-width="1"/>
+          <text x="266" y="107" text-anchor="middle" font-size="11" fill="rgba(201,168,76,0.7)" font-family="sans-serif" font-weight="bold">€ EUR</text>
+          <!-- Connecting lines -->
+          <line x1="80" y1="58" x2="100" y2="70" stroke="rgba(201,168,76,0.2)" stroke-width="1" stroke-dasharray="3,3"/>
+          <line x1="240" y1="48" x2="222" y2="62" stroke="rgba(201,168,76,0.2)" stroke-width="1" stroke-dasharray="3,3"/>
+        </svg>
+      </div>
+      <h3>Virtual USD Account</h3>
+      <p>Get a real US bank account number. Receive USD payments, salaries from abroad, and international transfers like a global citizen.</p>
+    </div>
+
+    <!-- MULTI-CURRENCY WALLET -->
+    <div class="feature-card">
+      <div class="feature-illustration">
+        <svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+          <rect width="320" height="160" fill="url(#g1)"/>
+          <!-- Wallet shape -->
+          <rect x="60" y="35" width="160" height="100" rx="12" fill="rgba(201,168,76,0.07)" stroke="rgba(201,168,76,0.25)" stroke-width="1.5"/>
+          <!-- Wallet flap -->
+          <rect x="60" y="35" width="160" height="30" rx="12" fill="rgba(201,168,76,0.12)" stroke="rgba(201,168,76,0.3)" stroke-width="1"/>
+          <rect x="60" y="56" width="160" height="9" fill="rgba(201,168,76,0.08)"/>
+          <!-- Coin slot -->
+          <rect x="175" y="72" width="50" height="36" rx="8" fill="rgba(201,168,76,0.1)" stroke="rgba(201,168,76,0.25)" stroke-width="1"/>
+          <text x="200" y="88" text-anchor="middle" font-size="9" fill="#C9A84C" font-family="sans-serif">HOG</text>
+          <text x="200" y="100" text-anchor="middle" font-size="8" fill="rgba(201,168,76,0.5)" font-family="sans-serif">Wallet</text>
+          <!-- Currency pills -->
+          <rect x="72" y="72" width="42" height="18" rx="9" fill="rgba(201,168,76,0.15)" stroke="rgba(201,168,76,0.35)" stroke-width="1"/>
+          <text x="93" y="85" text-anchor="middle" font-size="9" fill="#E8C97A" font-family="sans-serif" font-weight="bold">GH₵</text>
+          <rect x="72" y="96" width="42" height="18" rx="9" fill="rgba(76,175,131,0.12)" stroke="rgba(76,175,131,0.3)" stroke-width="1"/>
+          <text x="93" y="109" text-anchor="middle" font-size="9" fill="#4CAF83" font-family="sans-serif" font-weight="bold">USD</text>
+          <rect x="120" y="72" width="42" height="18" rx="9" fill="rgba(100,149,237,0.12)" stroke="rgba(100,149,237,0.3)" stroke-width="1"/>
+          <text x="141" y="85" text-anchor="middle" font-size="9" fill="#6495ED" font-family="sans-serif" font-weight="bold">EUR</text>
+          <rect x="120" y="96" width="42" height="18" rx="9" fill="rgba(255,165,0,0.12)" stroke="rgba(255,165,0,0.25)" stroke-width="1"/>
+          <text x="141" y="109" text-anchor="middle" font-size="9" fill="rgba(255,165,0,0.8)" font-family="sans-serif" font-weight="bold">NGN</text>
+          <!-- Swap arrows -->
+          <text x="242" y="80" text-anchor="middle" font-size="22" fill="rgba(201,168,76,0.6)" font-family="sans-serif">⇄</text>
+          <text x="242" y="100" text-anchor="middle" font-size="8" fill="rgba(201,168,76,0.4)" font-family="sans-serif">Live Rate</text>
+          <!-- Rate display -->
+          <rect x="218" y="108" width="68" height="20" rx="4" fill="rgba(201,168,76,0.06)" stroke="rgba(201,168,76,0.15)" stroke-width="1"/>
+          <text x="252" y="122" text-anchor="middle" font-size="8" fill="rgba(201,168,76,0.6)" font-family="sans-serif">1 USD = 15.2 GH₵</text>
+          <!-- Sparkle dots -->
+          <circle cx="38" cy="45" r="2" fill="rgba(201,168,76,0.4)"/>
+          <circle cx="48" cy="30" r="1.5" fill="rgba(201,168,76,0.3)"/>
+          <circle cx="30" cy="60" r="1" fill="rgba(201,168,76,0.25)"/>
+          <circle cx="295" cy="50" r="2" fill="rgba(201,168,76,0.4)"/>
+          <circle cx="285" cy="35" r="1.5" fill="rgba(201,168,76,0.3)"/>
+        </svg>
+      </div>
+      <h3>Multi-Currency Wallet</h3>
+      <p>Hold GHS, USD, EUR, GBP, NGN, and more in one place. Swap between currencies at live market rates with minimal fees.</p>
+    </div>
+
+    <!-- SECURITY -->
+    <div class="feature-card">
+      <div class="feature-illustration">
+        <svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+          <rect width="320" height="160" fill="url(#g1)"/>
+          <!-- Shield -->
+          <path d="M160 18 L210 38 L210 85 Q210 118 160 142 Q110 118 110 85 L110 38 Z" fill="rgba(201,168,76,0.07)" stroke="rgba(201,168,76,0.3)" stroke-width="1.5"/>
+          <!-- Shield inner -->
+          <path d="M160 30 L198 46 L198 84 Q198 110 160 128 Q122 110 122 84 L122 46 Z" fill="rgba(201,168,76,0.04)" stroke="rgba(201,168,76,0.15)" stroke-width="1"/>
+          <!-- Lock icon in shield -->
+          <rect x="148" y="72" width="24" height="22" rx="4" fill="rgba(201,168,76,0.2)" stroke="rgba(201,168,76,0.5)" stroke-width="1.5"/>
+          <path d="M153 72 L153 66 Q153 58 160 58 Q167 58 167 66 L167 72" fill="none" stroke="rgba(201,168,76,0.6)" stroke-width="2"/>
+          <circle cx="160" cy="82" r="3" fill="#C9A84C"/>
+          <line x1="160" y1="85" x2="160" y2="89" stroke="#C9A84C" stroke-width="1.5"/>
+          <!-- Orbiting security badges -->
+          <circle cx="82" cy="50" r="20" fill="none" stroke="rgba(201,168,76,0.1)" stroke-width="1" stroke-dasharray="3,3"/>
+          <circle cx="82" cy="30" r="10" fill="rgba(201,168,76,0.1)" stroke="rgba(201,168,76,0.25)" stroke-width="1">
+            <animateTransform attributeName="transform" type="rotate" from="0 82 50" to="360 82 50" dur="8s" repeatCount="indefinite"/>
+          </circle>
+          <text x="82" y="34" text-anchor="middle" font-size="8" fill="#C9A84C" font-family="sans-serif" font-weight="bold">
+            <animateTransform attributeName="transform" type="rotate" from="0 82 50" to="360 82 50" dur="8s" repeatCount="indefinite"/>
+            2FA
+          </text>
+          <!-- Right badges -->
+          <rect x="236" y="38" width="56" height="20" rx="4" fill="rgba(201,168,76,0.08)" stroke="rgba(201,168,76,0.2)" stroke-width="1"/>
+          <text x="264" y="52" text-anchor="middle" font-size="8" fill="rgba(201,168,76,0.7)" font-family="sans-serif">AES-256 ✓</text>
+          <rect x="236" y="64" width="56" height="20" rx="4" fill="rgba(76,175,131,0.08)" stroke="rgba(76,175,131,0.2)" stroke-width="1"/>
+          <text x="264" y="78" text-anchor="middle" font-size="8" fill="rgba(76,175,131,0.7)" font-family="sans-serif">KYC Verified</text>
+          <rect x="236" y="90" width="56" height="20" rx="4" fill="rgba(100,149,237,0.08)" stroke="rgba(100,149,237,0.2)" stroke-width="1"/>
+          <text x="264" y="104" text-anchor="middle" font-size="8" fill="rgba(100,149,237,0.7)" font-family="sans-serif">BOG Licensed</text>
+          <!-- Pulse rings -->
+          <circle cx="160" cy="80" r="50" fill="none" stroke="rgba(201,168,76,0.05)" stroke-width="1">
+            <animate attributeName="r" values="50;70;50" dur="3s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.3;0;0.3" dur="3s" repeatCount="indefinite"/>
+          </circle>
+        </svg>
+      </div>
+      <h3>Bank-Grade Security</h3>
+      <p>AES-256 encryption, 2-factor authentication, real-time fraud monitoring, and instant transaction alerts keep your money safe.</p>
+    </div>
+
+    <!-- INSTANT SETTLEMENTS -->
+    <div class="feature-card">
+      <div class="feature-illustration">
+        <svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+          <rect width="320" height="160" fill="url(#g1)"/>
+          <!-- Clock face -->
+          <circle cx="160" cy="80" r="50" fill="rgba(201,168,76,0.05)" stroke="rgba(201,168,76,0.2)" stroke-width="1.5"/>
+          <circle cx="160" cy="80" r="42" fill="none" stroke="rgba(201,168,76,0.1)" stroke-width="1"/>
+          <!-- Clock ticks -->
+          <line x1="160" y1="32" x2="160" y2="40" stroke="rgba(201,168,76,0.4)" stroke-width="2"/>
+          <line x1="160" y1="120" x2="160" y2="128" stroke="rgba(201,168,76,0.4)" stroke-width="2"/>
+          <line x1="112" y1="80" x2="120" y2="80" stroke="rgba(201,168,76,0.4)" stroke-width="2"/>
+          <line x1="200" y1="80" x2="208" y2="80" stroke="rgba(201,168,76,0.4)" stroke-width="2"/>
+          <!-- Clock hands -->
+          <line x1="160" y1="80" x2="160" y2="48" stroke="#C9A84C" stroke-width="2" stroke-linecap="round">
+            <animateTransform attributeName="transform" type="rotate" from="0 160 80" to="360 160 80" dur="12s" repeatCount="indefinite"/>
+          </line>
+          <line x1="160" y1="80" x2="185" y2="80" stroke="#E8C97A" stroke-width="1.5" stroke-linecap="round">
+            <animateTransform attributeName="transform" type="rotate" from="0 160 80" to="360 160 80" dur="1s" repeatCount="indefinite"/>
+          </line>
+          <!-- Center dot -->
+          <circle cx="160" cy="80" r="4" fill="#C9A84C"/>
+          <!-- Lightning bolt -->
+          <polygon points="168,50 158,72 166,72 156,95 174,68 164,68" fill="rgba(232,201,122,0.5)" stroke="#E8C97A" stroke-width="0.5"/>
+          <!-- Side labels -->
+          <rect x="18" y="55" width="68" height="22" rx="4" fill="rgba(76,175,131,0.1)" stroke="rgba(76,175,131,0.3)" stroke-width="1"/>
+          <text x="52" y="64" text-anchor="middle" font-size="7" fill="rgba(76,175,131,0.9)" font-family="sans-serif" font-weight="bold">SENT</text>
+          <text x="52" y="73" text-anchor="middle" font-size="8" fill="rgba(76,175,131,0.7)" font-family="sans-serif">✓ Instant</text>
+          <rect x="234" y="55" width="68" height="22" rx="4" fill="rgba(201,168,76,0.1)" stroke="rgba(201,168,76,0.3)" stroke-width="1"/>
+          <text x="268" y="64" text-anchor="middle" font-size="7" fill="#C9A84C" font-family="sans-serif" font-weight="bold">24/7/365</text>
+          <text x="268" y="73" text-anchor="middle" font-size="8" fill="rgba(201,168,76,0.6)" font-family="sans-serif">Always On</text>
+          <!-- Bottom text -->
+          <text x="160" y="148" text-anchor="middle" font-size="8" fill="rgba(201,168,76,0.4)" font-family="sans-serif" letter-spacing="2">REAL-TIME SETTLEMENT</text>
+        </svg>
+      </div>
+      <h3>Instant Settlements</h3>
+      <p>No more waiting 3-5 business days. HOG transactions settle in real time — 24 hours a day, 7 days a week, 365 days a year.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="section-tag">Simple Process</div>
+  <h2>Start Sending in<br>Under 5 Minutes</h2>
+  <p class="section-sub">We've removed every unnecessary step. Getting started with HOG is as simple as it gets.</p>
+  <div class="steps reveal">
+    <div class="step">
+      <div class="step-num">01</div>
+      <h3>Create Your Account</h3>
+      <p>Sign up with your phone number or email. Takes less than 2 minutes — no paperwork, no branches.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <h3>Verify Your Identity</h3>
+      <p>Snap a photo of your Ghana Card and take a selfie. Our AI verifies you instantly and securely.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <h3>Fund Your Wallet</h3>
+      <p>Add money via mobile money, bank transfer, or card. Your HOG wallet is ready to use immediately.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <h3>Send Anywhere</h3>
+      <p>Enter a phone number or HOG tag. Confirm with your PIN. Done — money delivered in seconds.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="section-tag">Transparent Fees</div>
+  <h2>Simple, Fair Pricing.<br>No Surprises.</h2>
+  <p class="section-sub">We believe in total transparency. Know exactly what you pay before every transaction — always.</p>
+  <div class="pricing-grid reveal">
+    <div class="pricing-card">
+      <div class="plan-name">Starter</div>
+      <div class="plan-price"><span>Free</span></div>
+      <div class="plan-period">Forever — no monthly fees</div>
+      <ul class="plan-features">
+        <li class="included">HOG wallet (GHS)</li>
+        <li class="included">Mobile money top-up</li>
+        <li class="included">Send within Ghana</li>
+        <li class="included">1% transfer fee</li>
+        <li>Pan-African transfers</li>
+        <li>Virtual USD account</li>
+      </ul>
+      <a href="#auth" class="btn-secondary" style="width:100%;text-align:center;display:block">Get Started Free</a>
+    </div>
+    <div class="pricing-card featured">
+      <div class="plan-badge">Most Popular</div>
+      <div class="plan-name">Africa</div>
+      <div class="plan-price"><span>GH₵</span>49</div>
+      <div class="plan-period">per month</div>
+      <ul class="plan-features">
+        <li class="included">Everything in Starter</li>
+        <li class="included">Pan-African transfers</li>
+        <li class="included">0.5% transfer fee</li>
+        <li class="included">Multi-currency wallet</li>
+        <li class="included">Priority support</li>
+        <li>Virtual USD account</li>
+      </ul>
+      <a href="#auth" class="btn-primary" style="width:100%;text-align:center;display:block">Start Africa Plan</a>
+    </div>
+    <div class="pricing-card">
+      <div class="plan-name">Global</div>
+      <div class="plan-price"><span>GH₵</span>149</div>
+      <div class="plan-period">per month</div>
+      <ul class="plan-features">
+        <li class="included">Everything in Africa</li>
+        <li class="included">Virtual USD account</li>
+        <li class="included">Virtual GBP & EUR</li>
+        <li class="included">0.3% transfer fee</li>
+        <li class="included">Global card (coming soon)</li>
+        <li class="included">Dedicated support</li>
+      </ul>
+      <a href="#auth" class="btn-secondary" style="width:100%;text-align:center;display:block">Go Global</a>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-visual">
+    <div class="africa-map">
+      <svg class="map-svg" viewBox="0 0 400 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M180 20 L220 15 L260 30 L280 50 L290 80 L285 100 L300 120 L310 150 L300 180 L310 210 L305 240 L290 270 L280 300 L260 330 L240 360 L220 380 L200 400 L185 420 L170 400 L150 370 L130 340 L115 310 L105 280 L100 250 L110 220 L105 195 L95 170 L100 140 L110 110 L105 85 L115 60 L140 40 Z" fill="rgba(201,168,76,0.12)" stroke="rgba(201,168,76,0.3)" stroke-width="1.5"/>
+        <path d="M115 60 L95 75 L80 100 L75 130 L80 155 L70 170 L75 190 L85 200 L95 170 L100 140" fill="rgba(201,168,76,0.08)" stroke="rgba(201,168,76,0.2)" stroke-width="1"/>
+        <path d="M280 50 L310 45 L330 60 L325 85 L310 80 L290 80" fill="rgba(201,168,76,0.08)" stroke="rgba(201,168,76,0.2)" stroke-width="1"/>
+      </svg>
+      <div class="map-dots">
+        <div class="map-dot"></div>
+        <div class="map-dot"></div>
+        <div class="map-dot"></div>
+        <div class="map-dot"></div>
+        <div class="map-dot"></div>
+      </div>
+    </div>
+  </div>
+  <div class="about-content">
+    <div class="section-tag">Our Story</div>
+    <h2>Born in Ghana.<br>Built for Africa.</h2>
+    <p class="section-sub">HOG was founded with one purpose: to make money movement as borderless as ideas. We watched Ghanaians pay 10–15% in fees to send money to a neighbouring country. We decided that had to change.</p>
+    <p class="section-sub" style="margin-top:-30px">We are regulated, secure, and committed to being the financial backbone of African commerce — from market traders in Accra to tech workers receiving salaries in dollars.</p>
+    <div class="about-values reveal">
+      <div class="about-val">
+        <h4>Trust First</h4>
+        <p>Your money is safe. Always. Licensed and regulated by the Bank of Ghana.</p>
+      </div>
+      <div class="about-val">
+        <h4>Radical Transparency</h4>
+        <p>No hidden fees. No fine print. What you see is exactly what you pay.</p>
+      </div>
+      <div class="about-val">
+        <h4>Built Locally</h4>
+        <p>Ghanaian team, Ghanaian focus, African vision. We understand this market.</p>
+      </div>
+      <div class="about-val">
+        <h4>Globally Ambitious</h4>
+        <p>Starting in Ghana, expanding across Africa, aiming at the world.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <div class="section-tag">Join HOG Today</div>
+  <h2>The Future of African Finance Starts Here</h2>
+  <p>Join thousands of Ghanaians already sending money smarter, faster, and cheaper with HOG.</p>
+  <a href="signup.html" class="btn-primary" style="font-size:15px;padding:18px 48px">Create Your Free Account →</a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <a href="#" class="logo">HOG</a>
+      <p>Africa's borderless payment platform. Send money home, across the continent, and around the world.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Product</h4>
+      <ul>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#how">How It Works</a></li>
+        <li><a href="#">Download App</a></li>
+        <li><a href="#">API Docs</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#about">About HOG</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#">Press</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Legal</h4>
+      <ul>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Terms of Service</a></li>
+        <li><a href="#">Cookie Policy</a></li>
+        <li><a href="#">Compliance</a></li>
+        <li><a href="#">Security</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 HOG Payments Ltd. All rights reserved. Licensed by the <span>Bank of Ghana</span>.</p>
+    <p>Built with ♥ in Accra, Ghana 🇬🇭</p>
+  </div>
+</footer>
+
+<script>
+  // CURSOR
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; cursor.style.left = mx + 'px'; cursor.style.top = my + 'px'; });
+  function animRing() { rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12; ring.style.left = rx + 'px'; ring.style.top = ry + 'px'; requestAnimationFrame(animRing); }
+  animRing();
+  document.querySelectorAll('a,button,.auth-tab').forEach(el => {
+    el.addEventListener('mouseenter', () => { cursor.style.transform = 'translate(-50%,-50%) scale(2)'; ring.style.transform = 'translate(-50%,-50%) scale(1.5)'; });
+    el.addEventListener('mouseleave', () => { cursor.style.transform = 'translate(-50%,-50%) scale(1)'; ring.style.transform = 'translate(-50%,-50%) scale(1)'; });
+  });
+
+  // NAV SCROLL
+  window.addEventListener('scroll', () => {
+    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 60);
+  });
+
+  // MOBILE MENU
+  function toggleMenu() {
+    document.getElementById('mobileMenu').classList.toggle('open');
+  }
+
+  // AUTH TABS
+  function switchTab(tab) {
+    document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById('panel-' + tab).classList.add('active');
+  }
+
+  // SCROLL REVEAL
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // COUNTER ANIMATION
+  function animateCount(el, target, suffix = '') {
+    let start = 0;
+    const dur = 2000;
+    const step = (timestamp) => {
+      if (!start) start = timestamp;
+      const progress = Math.min((timestamp - start) / dur, 1);
+      const val = Math.floor(progress * target);
+      el.textContent = val + suffix;
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+  const statsObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const nums = document.querySelectorAll('.stat-num');
+        nums[0].textContent = '54+';
+        nums[1].textContent = '0.5%';
+        nums[2].textContent = '< 30s';
+        nums[3].textContent = '256-bit';
+        statsObserver.disconnect();
+      }
+    });
+  });
+  const statsBar = document.querySelector('.stats-bar');
+  if (statsBar) statsObserver.observe(statsBar);
+</script>
+</body>
+</html>
