@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HOG — Africa's Payment Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8C97A;
+    --gold-dim: #8A6F35;
+    --black: #0A0A0A;
+    --dark: #111111;
+    --dark-2: #1A1A1A;
+    --dark-3: #222222;
+    --white: #F5F0E8;
+    --gray: #888880;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* CUSTOM CURSOR */
+  .cursor {
+    width: 12px; height: 12px;
+    background: var(--gold);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 99999;
+    transition: transform 0.15s ease, width 0.2s, height 0.2s;
+    transform: translate(-50%, -50%);
+  }
+  .cursor-ring {
+    width: 40px; height: 40px;
+    border: 1px solid rgba(201,168,76,0.4);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 99998;
+    transform: translate(-50%, -50%);
+    transition: all 0.12s ease;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+    padding: 24px 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(to bottom, rgba(10,10,10,0.95), transparent);
+    backdrop-filter: blur(2px);
+    transition: all 0.3s;
+  }
+  nav.scrolled {
+    background: rgba(10,10,10,0.97);
+    border-bottom: 1px solid rgba(201,168,76,0.15);
+    padding: 16px 60px;
+  }
+  .logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 6px;
+    text-decoration: none;
+  }
+  .logo span { color: var(--white); }
+  nav ul {
+    list-style: none;
+    display: flex;
+    gap: 40px;
+    align-items: center;
+  }
+  nav ul a {
+    color: var(--gray);
+    text-decoration: none;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  nav ul a:hover { color: var(--gold); }
+  .nav-cta {
+    background: var(--gold) !important;
+    color: var(--black) !important;
+    padding: 10px 24px;
+    border-radius: 2px;
+    font-weight: 600 !important;
+    letter-spacing: 1px !important;
+    transition: background 0.2s, transform 0.2s !important;
+  }
+  .nav-cta:hover { background: var(--gold-light) !important; transform: translateY(-1px); }
+
+  .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
+  .hamburger span { width: 24px; height: 1px; background: var(--gold); display: block; transition: 0.3s; }
+
+  /* HERO */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    padding: 0 60px;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 70% 50%, rgba(201,168,76,0.07) 0%, transparent 60%),
+                radial-gradient(ellipse at 20% 80%, rgba(201,168,76,0.04) 0%, transparent 50%);
+  }
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image: linear-gradient(rgba(201,168,76,0.04) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(201,168,76,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  }
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 700px;
+    animation: fadeUp 1s ease both;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid rgba(201,168,76,0.3);
+    padding: 6px 16px;
+    border-radius: 100px;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 32px;
+    animation: fadeUp 1s 0.1s ease both;
+  }
+  .hero-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--gold);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(52px, 7vw, 88px);
+    font-weight: 600;
+    line-height: 1.05;
+    margin-bottom: 24px;
+    animation: fadeUp 1s 0.2s ease both;
+  }
+  h1 .gold { color: var(--gold); }
+  .hero-sub {
+    font-size: 17px;
+    color: var(--gray);
+    line-height: 1.7;
+    max-width: 520px;
+    margin-bottom: 48px;
+    font-weight: 300;
+    animation: fadeUp 1s 0.3s ease both;
+  }
+  .hero-buttons {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    animation: fadeUp 1s 0.4s ease both;
+  }
+  .btn-primary {
+    background: var(--gold);
+    color: var(--black);
+    border: none;
+    padding: 16px 36px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 2px;
+    text-decoration: none;
+    transition: all 0.25s;
+    display: inline-block;
+  }
+  .btn-primary:hover { background: var(--gold-light); transform: translateY(-2px); box-shadow: 0 12px 40px rgba(201,168,76,0.3); }
+  .btn-secondary {
+    background: transparent;
+    color: var(--white);
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 16px 36px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 2px;
+    text-decoration: none;
+    transition: all 0.25s;
+    display: inline-block;
+  }
+  .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+
+  .hero-visual {
+    position: absolute;
+    right: 60px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 420px;
+    animation: fadeUp 1s 0.5s ease both;
+  }
+  .phone-mockup {
+    background: var(--dark-2);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 32px;
+    padding: 28px 24px;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 60px rgba(201,168,76,0.05);
+    position: relative;
+    overflow: hidden;
+  }
+  .phone-mockup::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 30%; right: 30%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .phone-notch {
+    width: 80px; height: 6px;
+    background: var(--dark-3);
+    border-radius: 10px;
+    margin: 0 auto 24px;
+  }
+  .phone-bal-label { font-size: 11px; color: var(--gray); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+  .phone-balance {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 42px;
+    font-weight: 600;
+    color: var(--gold);
+    margin-bottom: 24px;
+  }
+  .phone-balance span { font-size: 20px; }
+  .phone-actions {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .phone-action {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .phone-action-icon {
+    width: 44px; height: 44px;
+    background: var(--dark-3);
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+  .phone-action span { font-size: 10px; color: var(--gray); }
+  .phone-txns { display: flex; flex-direction: column; gap: 12px; }
+  .phone-txn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    background: var(--dark-3);
+    border-radius: 10px;
+  }
+  .txn-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .txn-info { flex: 1; }
+  .txn-name { font-size: 13px; font-weight: 500; }
+  .txn-date { font-size: 11px; color: var(--gray); }
+  .txn-amount { font-size: 14px; font-weight: 600; }
+  .txn-amount.cr { color: #4CAF83; }
+  .txn-amount.dr { color: #E05C5C; }
+
+  /* STATS BAR */
+  .stats-bar {
+    background: var(--dark-2);
+    border-top: 1px solid rgba(201,168,76,0.1);
+    border-bottom: 1px solid rgba(201,168,76,0.1);
+    padding: 40px 60px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+  }
+  .stat-item {
+    text-align: center;
+    padding: 0 20px;
+    border-right: 1px solid rgba(201,168,76,0.1);
+  }
+  .stat-item:last-child { border-right: none; }
+  .stat-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 44px;
+    font-weight: 700;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .stat-label { font-size: 12px; color: var(--gray); letter-spacing: 2px; text-transform: uppercase; }
+
+  /* SECTIONS */
+  section { padding: 100px 60px; }
+  .section-tag {
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+  }
+  h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(36px, 5vw, 60px);
+    font-weight: 600;
+    line-height: 1.1;
+    margin-bottom: 20px;
+  }
+  .section-sub {
+    font-size: 16px;
+    color: var(--gray);
+    line-height: 1.7;
+    max-width: 560px;
+    margin-bottom: 60px;
+  }
+
+  /* FEATURES */
+  #features { background: var(--dark); }
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    background: rgba(201,168,76,0.08);
+  }
+  .feature-card {
+    background: var(--dark);
+    padding: 48px 40px;
+    transition: background 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .feature-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transition: transform 0.3s;
+  }
+  .feature-card:hover { background: var(--dark-2); }
+  .feature-card:hover::after { transform: scaleX(1); }
+  .feature-icon {
+    font-size: 36px;
+    margin-bottom: 20px;
+    display: block;
+  }
+  .feature-card h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--white);
+  }
+  .feature-card p { font-size: 14px; color: var(--gray); line-height: 1.7; }
+
+  /* HOW IT WORKS */
+  #how {
+    background: var(--black);
+    position: relative;
+  }
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 40px;
+    margin-top: 60px;
+    position: relative;
+  }
+  .steps::before {
+    content: '';
+    position: absolute;
+    top: 30px;
+    left: 12%;
+    right: 12%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dim), var(--gold-dim), transparent);
+  }
+  .step { text-align: center; }
+  .step-num {
+    width: 60px; height: 60px;
+    background: var(--dark-2);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--gold);
+    position: relative;
+    z-index: 1;
+    background: var(--black);
+  }
+  .step h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  .step p { font-size: 14px; color: var(--gray); line-height: 1.7; }
+
+  /* PRICING */
+  #pricing { background: var(--dark); }
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 60px;
+  }
+  .pricing-card {
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: 4px;
+    padding: 48px 36px;
+    position: relative;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .pricing-card:hover { transform: translateY(-6px); box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
+  .pricing-card.featured {
+    border-color: var(--gold);
+    background: linear-gradient(135deg, rgba(201,168,76,0.06) 0%, transparent 100%);
+  }
+  .plan-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--gold);
+    color: var(--black);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 16px;
+    border-radius: 100px;
+  }
+  .plan-name {
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+  }
+  .plan-price {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 56px;
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .plan-price span { font-size: 20px; }
+  .plan-period { font-size: 13px; color: var(--gray); margin-bottom: 32px; }
+  .plan-features { list-style: none; margin-bottom: 36px; }
+  .plan-features li {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-size: 14px;
+    color: var(--gray);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .plan-features li::before { content: '✦'; color: var(--gold); font-size: 10px; }
+  .plan-features li.included { color: var(--white); }
+
+  /* ABOUT */
+  #about {
+    background: var(--black);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+  .about-visual {
+    position: relative;
+  }
+  .africa-map {
+    width: 100%;
+    max-width: 400px;
+    position: relative;
+  }
+  .map-svg { width: 100%; opacity: 0.6; filter: drop-shadow(0 0 20px rgba(201,168,76,0.2)); }
+  .map-dots {
+    position: absolute;
+    inset: 0;
+  }
+  .map-dot {
+    position: absolute;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--gold);
+    animation: mapPulse 2s infinite;
+  }
+  .map-dot::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 1px solid var(--gold);
+    animation: mapPulse 2s infinite 0.5s;
+  }
+  .map-dot:nth-child(1) { top: 42%; left: 44%; animation-delay: 0s; }
+  .map-dot:nth-child(2) { top: 48%; left: 66%; animation-delay: 0.4s; }
+  .map-dot:nth-child(3) { top: 35%; left: 57%; animation-delay: 0.8s; }
+  .map-dot:nth-child(4) { top: 62%; left: 54%; animation-delay: 1.2s; }
+  .map-dot:nth-child(5) { top: 52%; left: 30%; animation-delay: 1.6s; }
+  .about-content .section-sub { margin-bottom: 40px; }
+  .about-values { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .about-val {
+    border-left: 2px solid var(--gold-dim);
+    padding-left: 16px;
+  }
+  .about-val h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .about-val p { font-size: 12px; color: var(--gray); line-height: 1.5; }
+
+  /* AUTH SECTION */
+  #auth {
+    background: var(--dark);
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 80vh;
+  }
+  .auth-visual {
+    background: linear-gradient(135deg, rgba(201,168,76,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 30% 70%, rgba(201,168,76,0.1) 0%, transparent 60%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 60px;
+    position: relative;
+    overflow: hidden;
+  }
+  .auth-visual::before {
+    content: 'HOG';
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 200px;
+    font-weight: 700;
+    color: rgba(201,168,76,0.04);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+    letter-spacing: 20px;
+  }
+  .auth-tagline {
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+  .auth-tagline h2 { font-size: 48px; margin-bottom: 16px; }
+  .auth-tagline p { color: var(--gray); font-size: 16px; line-height: 1.6; }
+  .auth-panel {
+    padding: 80px 60px;
+    display: flex;
+    align-items: center;
+  }
+  .auth-form-wrap { width: 100%; max-width: 420px; }
+  .auth-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 40px;
+    border-bottom: 1px solid rgba(201,168,76,0.15);
+  }
+  .auth-tab {
+    padding: 12px 32px;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gray);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.2s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    font-family: 'Outfit', sans-serif;
+  }
+  .auth-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+  .form-group { margin-bottom: 20px; }
+  .form-group label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gray);
+    margin-bottom: 8px;
+  }
+  .form-group input, .form-group select {
+    width: 100%;
+    background: var(--dark-3);
+    border: 1px solid rgba(201,168,76,0.15);
+    color: var(--white);
+    padding: 14px 16px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    border-radius: 2px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-group input:focus, .form-group select:focus { border-color: var(--gold); }
+  .form-group input::placeholder { color: #444; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-note { font-size: 12px; color: var(--gray); margin-top: 16px; text-align: center; }
+  .form-note a { color: var(--gold); text-decoration: none; }
+  .form-panel { display: none; }
+  .form-panel.active { display: block; }
+
+  /* CTA SECTION */
+  #cta {
+    background: linear-gradient(135deg, rgba(201,168,76,0.1) 0%, transparent 50%, rgba(201,168,76,0.05) 100%);
+    border-top: 1px solid rgba(201,168,76,0.15);
+    border-bottom: 1px solid rgba(201,168,76,0.15);
+    text-align: center;
+    padding: 100px 60px;
+  }
+  #cta h2 { font-size: clamp(40px, 6vw, 72px); max-width: 700px; margin: 0 auto 24px; }
+  #cta p { color: var(--gray); font-size: 17px; max-width: 500px; margin: 0 auto 48px; line-height: 1.7; }
+
+  /* FOOTER */
+  footer {
+    background: var(--dark-2);
+    padding: 60px 60px 30px;
+    border-top: 1px solid rgba(201,168,76,0.1);
+  }
+  .footer-top {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr;
+    gap: 60px;
+    margin-bottom: 60px;
+  }
+  .footer-brand .logo { display: block; margin-bottom: 16px; }
+  .footer-brand p { font-size: 13px; color: var(--gray); line-height: 1.7; max-width: 240px; }
+  .footer-col h4 {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 20px;
+  }
+  .footer-col ul { list-style: none; }
+  .footer-col ul li { margin-bottom: 10px; }
+  .footer-col ul a { font-size: 13px; color: var(--gray); text-decoration: none; transition: color 0.2s; }
+  .footer-col ul a:hover { color: var(--white); }
+  .footer-bottom {
+    border-top: 1px solid rgba(255,255,255,0.05);
+    padding-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--gray);
+  }
+  .footer-bottom span { color: var(--gold); }
+
+  /* MOBILE NAV */
+  .mobile-menu {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--black);
+    z-index: 999;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+  }
+  .mobile-menu.open { display: flex; }
+  .mobile-menu a {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    color: var(--white);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .mobile-menu a:hover { color: var(--gold); }
+  .close-menu {
+    position: absolute;
+    top: 24px; right: 24px;
+    font-size: 32px;
+    color: var(--gold);
+    cursor: pointer;
+    background: none;
+    border: none;
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  @keyframes mapPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    nav { padding: 20px 24px; }
+    nav.scrolled { padding: 14px 24px; }
+    nav ul { display: none; }
+    .hamburger { display: flex; }
+    #hero { padding: 100px 24px 60px; }
+    .hero-visual { display: none; }
+    .stats-bar { grid-template-columns: repeat(2,1fr); padding: 40px 24px; gap: 24px; }
+    .stat-item { border-right: none; border-bottom: 1px solid rgba(201,168,76,0.1); padding-bottom: 24px; }
+    section { padding: 70px 24px; }
+    .features-grid { grid-template-columns: 1fr; }
+    .steps { grid-template-columns: 1fr 1fr; }
+    .steps::before { display: none; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    #about { grid-template-columns: 1fr; padding: 70px 24px; gap: 40px; }
+    .about-visual { display: none; }
+    #auth { grid-template-columns: 1fr; }
+    .auth-visual { display: none; }
+    .auth-panel { padding: 60px 24px; }
+    .footer-top { grid-template-columns: 1fr 1fr; gap: 40px; }
+    footer { padding: 60px 24px 30px; }
+    .footer-bottom { flex-direction: column; gap: 10px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <button class="close-menu" onclick="toggleMenu()">✕</button>
+  <a href="#features" onclick="toggleMenu()">Features</a>
+  <a href="#how" onclick="toggleMenu()">How It Works</a>
+  <a href="#pricing" onclick="toggleMenu()">Pricing</a>
+  <a href="#about" onclick="toggleMenu()">About</a>
+  <a href="#auth" onclick="toggleMenu()" style="color:var(--gold)">Get Started</a>
+</div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a href="#" class="logo">HOG</a>
+  <ul>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#auth" class="nav-cta">Get Started</a></li>
+  </ul>
+  <div class="hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-badge">Now live across Africa</div>
+    <h1>Money Moves<br><span class="gold">Without</span><br>Borders</h1>
+    <p class="hero-sub">HOG is Africa's most powerful payment platform. Send money across Ghana, Africa, and the world — instantly, securely, and for less.</p>
+    <div class="hero-buttons">
+      <a href="#auth" class="btn-primary">Create Free Account</a>
+      <a href="#how" class="btn-secondary">See How It Works</a>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="phone-mockup">
+      <div class="phone-notch"></div>
+      <p class="phone-bal-label">Total Balance</p>
+      <div class="phone-balance"><span>GH₵</span> 12,450<span>.00</span></div>
+      <div class="phone-actions">
+        <div class="phone-action">
+          <div class="phone-action-icon">↑</div>
+          <span>Send</span>
+        </div>
+        <div class="phone-action">
+          <div class="phone-action-icon">↓</div>
+          <span>Receive</span>
+        </div>
+        <div class="phone-action">
+          <div class="phone-action-icon">⇄</div>
+          <span>Swap</span>
+        </div>
+        <div class="phone-action">
+          <div class="phone-action-icon">+</div>
+          <span>Top Up</span>
+        </div>
+      </div>
+      <div class="phone-txns">
+        <div class="phone-txn">
+          <div class="txn-avatar" style="background:rgba(76,175,131,0.15);color:#4CAF83">KA</div>
+          <div class="txn-info">
+            <div class="txn-name">Kwame Asante</div>
+            <div class="txn-date">Today, 9:42 AM</div>
+          </div>
+          <div class="txn-amount cr">+GH₵ 500</div>
+        </div>
+        <div class="phone-txn">
+          <div class="txn-avatar" style="background:rgba(224,92,92,0.15);color:#E05C5C">NG</div>
+          <div class="txn-info">
+            <div class="txn-name">To Nigeria (NGN)</div>
+            <div class="txn-date">Yesterday</div>
+          </div>
+          <div class="txn-amount dr">-GH₵ 1,200</div>
+        </div>
+        <div class="phone-txn">
+          <div class="txn-avatar" style="background:rgba(201,168,76,0.15);color:#C9A84C">AB</div>
+          <div class="txn-info">
+            <div class="txn-name">Ama Boateng</div>
+            <div class="txn-date">Mon, Feb 22</div>
+          </div>
+          <div class="txn-amount cr">+GH₵ 2,000</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar reveal">
+  <div class="stat-item">
+    <div class="stat-num">54+</div>
+    <div class="stat-label">African Countries</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">0.5%</div>
+    <div class="stat-label">Transfer Fee</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">< 30s</div>
+    <div class="stat-label">Transfer Speed</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">256-bit</div>
+    <div class="stat-label">Encryption</div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-tag">What We Offer</div>
+  <h2>Built for Africa.<br>Ready for the World.</h2>
+  <p class="section-sub">Every feature designed to solve real problems Africans face with money movement — from mobile money to global bank accounts.</p>
+  <div class="features-grid reveal">
+    <div class="feature-card">
+      <span class="feature-icon">📱</span>
+      <h3>Mobile Money Integration</h3>
+      <p>Send and receive directly from MTN MoMo, Telecel Cash, and AirtelTigo Money. No bank account required to get started.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🌍</span>
+      <h3>Pan-African Transfers</h3>
+      <p>Send money to 54 African countries in seconds. Nigeria, Kenya, Senegal, South Africa — all covered with real-time exchange rates.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🏦</span>
+      <h3>Virtual USD Account</h3>
+      <p>Get a real US bank account number. Receive USD payments, salaries from abroad, and international transfers like a global citizen.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">💱</span>
+      <h3>Multi-Currency Wallet</h3>
+      <p>Hold GHS, USD, EUR, GBP, NGN, and more in one place. Swap between currencies at live market rates with minimal fees.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🔐</span>
+      <h3>Bank-Grade Security</h3>
+      <p>AES-256 encryption, 2-factor authentication, real-time fraud monitoring, and instant transaction alerts keep your money safe.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">⚡</span>
+      <h3>Instant Settlements</h3>
+      <p>No more waiting 3-5 business days. HOG transactions settle in real time — 24 hours a day, 7 days a week, 365 days a year.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="section-tag">Simple Process</div>
+  <h2>Start Sending in<br>Under 5 Minutes</h2>
+  <p class="section-sub">We've removed every unnecessary step. Getting started with HOG is as simple as it gets.</p>
+  <div class="steps reveal">
+    <div class="step">
+      <div class="step-num">01</div>
+      <h3>Create Your Account</h3>
+      <p>Sign up with your phone number or email. Takes less than 2 minutes — no paperwork, no branches.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <h3>Verify Your Identity</h3>
+      <p>Snap a photo of your Ghana Card and take a selfie. Our AI verifies you instantly and securely.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <h3>Fund Your Wallet</h3>
+      <p>Add money via mobile money, bank transfer, or card. Your HOG wallet is ready to use immediately.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <h3>Send Anywhere</h3>
+      <p>Enter a phone number or HOG tag. Confirm with your PIN. Done — money delivered in seconds.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="section-tag">Transparent Fees</div>
+  <h2>Simple, Fair Pricing.<br>No Surprises.</h2>
+  <p class="section-sub">We believe in total transparency. Know exactly what you pay before every transaction — always.</p>
+  <div class="pricing-grid reveal">
+    <div class="pricing-card">
+      <div class="plan-name">Starter</div>
+      <div class="plan-price"><span>Free</span></div>
+      <div class="plan-period">Forever — no monthly fees</div>
+      <ul class="plan-features">
+        <li class="included">HOG wallet (GHS)</li>
+        <li class="included">Mobile money top-up</li>
+        <li class="included">Send within Ghana</li>
+        <li class="included">1% transfer fee</li>
+        <li>Pan-African transfers</li>
+        <li>Virtual USD account</li>
+      </ul>
+      <a href="#auth" class="btn-secondary" style="width:100%;text-align:center;display:block">Get Started Free</a>
+    </div>
+    <div class="pricing-card featured">
+      <div class="plan-badge">Most Popular</div>
+      <div class="plan-name">Africa</div>
+      <div class="plan-price"><span>GH₵</span>49</div>
+      <div class="plan-period">per month</div>
+      <ul class="plan-features">
+        <li class="included">Everything in Starter</li>
+        <li class="included">Pan-African transfers</li>
+        <li class="included">0.5% transfer fee</li>
+        <li class="included">Multi-currency wallet</li>
+        <li class="included">Priority support</li>
+        <li>Virtual USD account</li>
+      </ul>
+      <a href="#auth" class="btn-primary" style="width:100%;text-align:center;display:block">Start Africa Plan</a>
+    </div>
+    <div class="pricing-card">
+      <div class="plan-name">Global</div>
+      <div class="plan-price"><span>GH₵</span>149</div>
+      <div class="plan-period">per month</div>
+      <ul class="plan-features">
+        <li class="included">Everything in Africa</li>
+        <li class="included">Virtual USD account</li>
+        <li class="included">Virtual GBP & EUR</li>
+        <li class="included">0.3% transfer fee</li>
+        <li class="included">Global card (coming soon)</li>
+        <li class="included">Dedicated support</li>
+      </ul>
+      <a href="#auth" class="btn-secondary" style="width:100%;text-align:center;display:block">Go Global</a>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-visual">
+    <div class="africa-map">
+      <svg class="map-svg" viewBox="0 0 400 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M180 20 L220 15 L260 30 L280 50 L290 80 L285 100 L300 120 L310 150 L300 180 L310 210 L305 240 L290 270 L280 300 L260 330 L240 360 L220 380 L200 400 L185 420 L170 400 L150 370 L130 340 L115 310 L105 280 L100 250 L110 220 L105 195 L95 170 L100 140 L110 110 L105 85 L115 60 L140 40 Z" fill="rgba(201,168,76,0.12)" stroke="rgba(201,168,76,0.3)" stroke-width="1.5"/>
+        <path d="M115 60 L95 75 L80 100 L75 130 L80 155 L70 170 L75 190 L85 200 L95 170 L100 140" fill="rgba(201,168,76,0.08)" stroke="rgba(201,168,76,0.2)" stroke-width="1"/>
+        <path d="M280 50 L310 45 L330 60 L325 85 L310 80 L290 80" fill="rgba(201,168,76,0.08)" stroke="rgba(201,168,76,0.2)" stroke-width="1"/>
+      </svg>
+      <div class="map-dots">
+        <div class="map-dot"></div>
+        <div class="map-dot"></div>
+        <div class="map-dot"></div>
+        <div class="map-dot"></div>
+        <div class="map-dot"></div>
+      </div>
+    </div>
+  </div>
+  <div class="about-content">
+    <div class="section-tag">Our Story</div>
+    <h2>Born in Ghana.<br>Built for Africa.</h2>
+    <p class="section-sub">HOG was founded with one purpose: to make money movement as borderless as ideas. We watched Ghanaians pay 10–15% in fees to send money to a neighbouring country. We decided that had to change.</p>
+    <p class="section-sub" style="margin-top:-30px">We are regulated, secure, and committed to being the financial backbone of African commerce — from market traders in Accra to tech workers receiving salaries in dollars.</p>
+    <div class="about-values reveal">
+      <div class="about-val">
+        <h4>Trust First</h4>
+        <p>Your money is safe. Always. Licensed and regulated by the Bank of Ghana.</p>
+      </div>
+      <div class="about-val">
+        <h4>Radical Transparency</h4>
+        <p>No hidden fees. No fine print. What you see is exactly what you pay.</p>
+      </div>
+      <div class="about-val">
+        <h4>Built Locally</h4>
+        <p>Ghanaian team, Ghanaian focus, African vision. We understand this market.</p>
+      </div>
+      <div class="about-val">
+        <h4>Globally Ambitious</h4>
+        <p>Starting in Ghana, expanding across Africa, aiming at the world.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <div class="section-tag">Join HOG Today</div>
+  <h2>The Future of African Finance Starts Here</h2>
+  <p>Join thousands of Ghanaians already sending money smarter, faster, and cheaper with HOG.</p>
+  <a href="#auth" class="btn-primary" style="font-size:15px;padding:18px 48px">Create Your Free Account →</a>
+</section>
+
+<!-- AUTH -->
+<section id="auth">
+  <div class="auth-visual">
+    <div class="auth-tagline">
+      <h2>Welcome to<br><span style="color:var(--gold)">HOG</span></h2>
+      <p>Africa's most trusted<br>payment platform</p>
+    </div>
+  </div>
+  <div class="auth-panel">
+    <div class="auth-form-wrap">
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchTab('signin')">Sign In</button>
+        <button class="auth-tab" onclick="switchTab('signup')">Create Account</button>
+      </div>
+
+      <!-- SIGN IN -->
+      <div class="form-panel active" id="panel-signin">
+        <div class="form-group">
+          <label>Phone Number or Email</label>
+          <input type="text" placeholder="+233 XX XXX XXXX or email@example.com">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" placeholder="Enter your password">
+        </div>
+        <button class="btn-primary" style="width:100%;margin-top:8px">Sign In to HOG</button>
+        <p class="form-note">Forgot your password? <a href="#">Reset it here</a></p>
+      </div>
+
+      <!-- SIGN UP -->
+      <div class="form-panel" id="panel-signup">
+        <div class="form-row">
+          <div class="form-group">
+            <label>First Name</label>
+            <input type="text" placeholder="Kwame">
+          </div>
+          <div class="form-group">
+            <label>Last Name</label>
+            <input type="text" placeholder="Asante">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="tel" placeholder="+233 XX XXX XXXX">
+        </div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" placeholder="you@example.com">
+        </div>
+        <div class="form-group">
+          <label>Create Password</label>
+          <input type="password" placeholder="Minimum 8 characters">
+        </div>
+        <div class="form-group">
+          <label>I am signing up as</label>
+          <select>
+            <option>Personal Account</option>
+            <option>Business Account</option>
+          </select>
+        </div>
+        <button class="btn-primary" style="width:100%;margin-top:8px">Create My HOG Account</button>
+        <p class="form-note">By signing up, you agree to HOG's <a href="#">Terms of Service</a> & <a href="#">Privacy Policy</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <a href="#" class="logo">HOG</a>
+      <p>Africa's borderless payment platform. Send money home, across the continent, and around the world.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Product</h4>
+      <ul>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#how">How It Works</a></li>
+        <li><a href="#">Download App</a></li>
+        <li><a href="#">API Docs</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#about">About HOG</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#">Press</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Legal</h4>
+      <ul>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Terms of Service</a></li>
+        <li><a href="#">Cookie Policy</a></li>
+        <li><a href="#">Compliance</a></li>
+        <li><a href="#">Security</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 HOG Payments Ltd. All rights reserved. Licensed by the <span>Bank of Ghana</span>.</p>
+    <p>Built with ♥ in Accra, Ghana 🇬🇭</p>
+  </div>
+</footer>
+
+<script>
+  // CURSOR
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; cursor.style.left = mx + 'px'; cursor.style.top = my + 'px'; });
+  function animRing() { rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12; ring.style.left = rx + 'px'; ring.style.top = ry + 'px'; requestAnimationFrame(animRing); }
+  animRing();
+  document.querySelectorAll('a,button,.auth-tab').forEach(el => {
+    el.addEventListener('mouseenter', () => { cursor.style.transform = 'translate(-50%,-50%) scale(2)'; ring.style.transform = 'translate(-50%,-50%) scale(1.5)'; });
+    el.addEventListener('mouseleave', () => { cursor.style.transform = 'translate(-50%,-50%) scale(1)'; ring.style.transform = 'translate(-50%,-50%) scale(1)'; });
+  });
+
+  // NAV SCROLL
+  window.addEventListener('scroll', () => {
+    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 60);
+  });
+
+  // MOBILE MENU
+  function toggleMenu() {
+    document.getElementById('mobileMenu').classList.toggle('open');
+  }
+
+  // AUTH TABS
+  function switchTab(tab) {
+    document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById('panel-' + tab).classList.add('active');
+  }
+
+  // SCROLL REVEAL
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // COUNTER ANIMATION
+  function animateCount(el, target, suffix = '') {
+    let start = 0;
+    const dur = 2000;
+    const step = (timestamp) => {
+      if (!start) start = timestamp;
+      const progress = Math.min((timestamp - start) / dur, 1);
+      const val = Math.floor(progress * target);
+      el.textContent = val + suffix;
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+  const statsObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const nums = document.querySelectorAll('.stat-num');
+        nums[0].textContent = '54+';
+        nums[1].textContent = '0.5%';
+        nums[2].textContent = '< 30s';
+        nums[3].textContent = '256-bit';
+        statsObserver.disconnect();
+      }
+    });
+  });
+  const statsBar = document.querySelector('.stats-bar');
+  if (statsBar) statsObserver.observe(statsBar);
+</script>
+</body>
+</html>
